@@ -38,8 +38,6 @@ python data/bootstrap.py q001
 
 `bootstrap.py` also syncs `.vscode/settings.json` so DuckDB Explorer defaults to `workspace.duckdb`. Switch questions by changing schema, e.g. `SET schema = 'q001';` or by querying `q001.users`, `q001.activity`, etc.
 
-It still generates `data/session_init.sql` for direct multi-file attach workflows, but the recommended path is using `workspace.duckdb` so no per-session attach is needed.
-
 To rebuild automatically when you open this folder, add `"runOptions": { "runOn": "folderOpen" }` to that task in `.vscode/tasks.json` (fine for small datasets; skip if generation gets slow).
 
 (You can `pip install duckdb` directly instead of `requirements.txt` if you prefer.)
@@ -49,7 +47,6 @@ To rebuild automatically when you open this folder, add `"runOptions": { "runOn"
 - `data/generators/` - question-specific data builders (`generate_qNNN.py`)
 - `data/qNNN.duckdb` - per-question DuckDB files produced by generators
 - `data/workspace.duckdb` - combined database with one schema per question (`q001`, `q002`, ...)
-- `data/session_init.sql` - optional attach script for direct multi-file workflows
 
 ## Questions
 

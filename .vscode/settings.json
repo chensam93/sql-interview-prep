@@ -1,0 +1,24 @@
+{
+    "workbench.editorAssociations": {
+        "*.parquet": "duckdb.dataFileViewer",
+        "*.csv": "duckdb.dataFileViewer",
+        "*.tsv": "duckdb.dataFileViewer"
+    },
+    "duckdb.databases": [
+        {
+            "alias": "workspace",
+            "type": "file",
+            "path": "${workspaceFolder}/data/workspace.duckdb",
+            "readOnly": false,
+            "attached": true
+        },
+        {
+            "alias": "q001",
+            "type": "file",
+            "path": "${workspaceFolder}/data/q001.duckdb",
+            "readOnly": false,
+            "attached": true
+        }
+    ],
+    "duckdb.defaultDatabase": "workspace"
+}

@@ -1,7 +1,11 @@
 """
 Generate sample data for Q001: Cohort Retention Analysis.
-Run from repo root:
+
+Run directly:
     python data/generate_q001.py
+Or build every question at once:
+    python data/bootstrap.py
+
 Creates: data/q001.duckdb
 """
 

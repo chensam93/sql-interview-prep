@@ -5,18 +5,44 @@ A live, queryable SQL practice environment for senior analytics engineering inte
 ## How it works
 
 1. Pick a question from `questions/`
-2. Run the matching data generation script in `data/` to create a fresh DuckDB file
-3. Connect Cursor's DuckDB extension to `data/<question>.duckdb`
+2. Build local DuckDB files with `python data/bootstrap.py` (see **Data** below)
+3. Query `data/workspace.duckdb` (default in workspace settings); each question lives in its own schema like `q001`
 4. Write your answer in `scratch.sql` (gitignored — your private workspace)
 5. Review the reference solution in `solutions/` when ready
 
 ## Setup
 
-Requires Python 3.9+ and duckdb:
+Requires Python 3.9+:
 
 ```bash
-pip install duckdb
+pip install -r requirements.txt
 ```
+
+## Data
+
+`*.duckdb` files are gitignored (regenerate locally). One command builds **every** question that has a `data/generate_qNNN.py` script and also creates `data/workspace.duckdb`:
+
+```bash
+python data/bootstrap.py
+```
+
+Build specific questions only:
+
+```bash
+python data/bootstrap.py q001
+```
+
+**Adding a new question:** add `questions/qNNN_….md`, `data/generate_qNNN.py` (writing `data/qNNN.duckdb`), and `solutions/…`. The next `bootstrap.py` run picks up the new generator automatically.
+
+**Cursor / VS Code:** **Terminal → Run Build Task** (or `Ctrl+Shift+B` / `Cmd+Shift+B`) runs `python data/bootstrap.py` as the default build task.
+
+`bootstrap.py` also syncs `.vscode/settings.json` so DuckDB Explorer defaults to `workspace.duckdb`. Switch questions by changing schema, e.g. `SET schema = 'q001';` or by querying `q001.users`, `q001.activity`, etc.
+
+It still generates `data/session_init.sql` for direct multi-file attach workflows, but the recommended path is using `workspace.duckdb` so no per-session attach is needed.
+
+To rebuild automatically when you open this folder, add `"runOptions": { "runOn": "folderOpen" }` to that task in `.vscode/tasks.json` (fine for small datasets; skip if generation gets slow).
+
+(You can `pip install duckdb` directly instead of `requirements.txt` if you prefer.)
 
 ## Questions
 

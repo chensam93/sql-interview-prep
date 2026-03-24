@@ -2,7 +2,7 @@
 Generate sample data for Q001: Cohort Retention Analysis.
 
 Run directly:
-    python data/generate_q001.py
+    python data/generators/generate_q001.py
 Or build every question at once:
     python data/bootstrap.py
 
@@ -16,10 +16,7 @@ from pathlib import Path
 
 random.seed(42)
 
-DB_PATH = Path(__file__).parent / "q001.duckdb"
-if DB_PATH.exists():
-    DB_PATH.unlink()
-
+DB_PATH = Path(__file__).resolve().parent.parent / "q001.duckdb"
 conn = duckdb.connect(str(DB_PATH))
 
 START_DATE = date(2024, 10, 1)
@@ -79,6 +76,9 @@ for u in users:
         })
 
 # ── write to duckdb ───────────────────────────────────────────────────────────
+conn.execute("drop table if exists users")
+conn.execute("drop table if exists activity")
+
 conn.execute("""
     create table users (
         user_id      varchar,

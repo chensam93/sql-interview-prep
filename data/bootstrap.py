@@ -6,7 +6,8 @@ From repo root:
   python data/bootstrap.py q001      # one question
   python data/bootstrap.py q001 q002 # several
 
-Convention for new questions: add data/generate_qNNN.py that writes data/qNNN.duckdb
+Convention for new questions: add data/generators/generate_qNNN.py that writes
+data/qNNN.duckdb
 (this repo’s pattern). Re-run this script after pulling new generators.
 """
 
@@ -22,7 +23,8 @@ from pathlib import Path
 
 def _generators(data_dir: Path) -> dict[str, Path]:
     out: dict[str, Path] = {}
-    for path in sorted(data_dir.glob("generate_q*.py")):
+    generators_dir = data_dir / "generators"
+    for path in sorted(generators_dir.glob("generate_q*.py")):
         stem = path.stem  # generate_q001
         if not stem.startswith("generate_q") or len(stem) <= len("generate_q"):
             continue
@@ -134,7 +136,7 @@ def main() -> int:
     data_dir = Path(__file__).resolve().parent
     by_id = _generators(data_dir)
     if not by_id:
-        print("No data/generate_q*.py scripts found.", file=sys.stderr)
+        print("No data/generators/generate_q*.py scripts found.", file=sys.stderr)
         return 1
 
     parser = argparse.ArgumentParser(description="Build DuckDB datasets for SQL prep questions.")
@@ -166,7 +168,19 @@ def main() -> int:
                 failed.append(qid)
         except Exception:
             failed.append(qid)
-            raise
+            msg = str(sys.exc_info()[1])
+            if "File is already open" in msg or "being used by another process" in msg:
+                print(
+                    f"  {qid}: database file is locked by another app/session.",
+                    file=sys.stderr,
+                )
+                print(
+                    "  Close/detach that database in DuckDB Explorer, then rerun bootstrap.",
+                    file=sys.stderr,
+                )
+            else:
+                print(f"  {qid}: unexpected error while generating data.", file=sys.stderr)
+            continue
 
     if failed:
         print(f"Failed: {', '.join(failed)}", file=sys.stderr)

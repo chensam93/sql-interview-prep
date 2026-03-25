@@ -1,0 +1,13 @@
+---
+description: SQL style for this repository
+globs: "**/*.sql"
+alwaysApply: false
+---
+
+# SQL Style
+
+- Follow dbt-style formatting with named CTE steps.
+- Avoid subqueries; use CTEs instead.
+- Do not use shortened aliases (for example `u`, `a`, `c`).
+- Use descriptive snake_case names for CTEs and selected fields.
+- Prefer explicit select lists in final result queries.

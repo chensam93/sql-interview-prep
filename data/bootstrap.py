@@ -14,6 +14,7 @@ data/qNNN.duckdb
 from __future__ import annotations
 
 import argparse
+import shutil
 import importlib.util
 import json
 import runpy
@@ -79,12 +80,11 @@ def _qident(name: str) -> str:
     return '"' + name.replace('"', '""') + '"'
 
 
-def _build_workspace_db(data_dir: Path, question_ids: list[str]) -> None:
+def _build_workspace_db(data_dir: Path, question_ids: list[str]) -> list[str]:
     import duckdb
 
+    skipped: list[str] = []
     workspace_path = data_dir / "workspace.duckdb"
-    if workspace_path.exists():
-        workspace_path.unlink()
 
     conn = duckdb.connect(str(workspace_path))
     try:
@@ -94,20 +94,63 @@ def _build_workspace_db(data_dir: Path, question_ids: list[str]) -> None:
                 continue
 
             src_alias = f"src_{qid}"
-            conn.execute(f"ATTACH '{source_path.as_posix()}' AS {_qident(src_alias)} (READ_ONLY)")
-            conn.execute(f"CREATE SCHEMA IF NOT EXISTS {_qident(qid)}")
-
-            rows = conn.execute(f"SHOW TABLES FROM {_qident(src_alias)}.main").fetchall()
-            for (table_name,) in rows:
+            quoted_alias = _qident(src_alias)
+            try:
                 conn.execute(
-                    f"""
-                    CREATE OR REPLACE TABLE {_qident(qid)}.{_qident(table_name)} AS
-                    SELECT * FROM {_qident(src_alias)}.main.{_qident(table_name)}
-                    """
+                    f"ATTACH '{source_path.as_posix()}' AS {quoted_alias} (READ_ONLY)"
                 )
-            conn.execute(f"DETACH {_qident(src_alias)}")
+            except (OSError, duckdb.IOException) as exc:
+                msg = str(exc).lower()
+                if (
+                    "already open" in msg
+                    or "being used by another process" in msg
+                    or "cannot open file" in msg
+                ):
+                    print(
+                        f"  Workspace merge skipped {qid}: file is open elsewhere "
+                        f"({source_path.name}). Detach it and rerun bootstrap to include it.",
+                        file=sys.stderr,
+                    )
+                else:
+                    print(
+                        f"  Workspace merge skipped {qid}: {exc}",
+                        file=sys.stderr,
+                    )
+                skipped.append(qid)
+                continue
+            except Exception as exc:
+                print(f"  Workspace merge skipped {qid}: {exc}", file=sys.stderr)
+                skipped.append(qid)
+                continue
+
+            try:
+                conn.execute(f"CREATE SCHEMA IF NOT EXISTS {_qident(qid)}")
+
+                rows = conn.execute(
+                    f"SHOW TABLES FROM {quoted_alias}.main"
+                ).fetchall()
+                for (table_name,) in rows:
+                    conn.execute(
+                        f"""
+                        CREATE OR REPLACE TABLE {_qident(qid)}.{_qident(table_name)} AS
+                        SELECT * FROM {quoted_alias}.main.{_qident(table_name)}
+                        """
+                    )
+            finally:
+                try:
+                    conn.execute(f"DETACH {quoted_alias}")
+                except Exception:
+                    pass
     finally:
         conn.close()
+
+    return skipped
+
+
+def _refresh_verification_db(data_dir: Path) -> None:
+    workspace_path = data_dir / "workspace.duckdb"
+    verification_path = data_dir / "workspace_verify.duckdb"
+    shutil.copy2(workspace_path, verification_path)
 
 
 def main() -> int:
@@ -165,13 +208,26 @@ def main() -> int:
                 print(f"  {qid}: unexpected error while generating data.", file=sys.stderr)
             continue
 
+    all_ids = sorted(by_id.keys())
+    workspace_skipped = _build_workspace_db(data_dir, all_ids)
+    _refresh_verification_db(data_dir)
+    _sync_duckdb_workspace_settings(data_dir.parent, all_ids)
+
+    if workspace_skipped:
+        print(
+            f"Workspace built without: {', '.join(workspace_skipped)} "
+            "(detach those databases in the IDE, then rerun bootstrap).",
+            file=sys.stderr,
+        )
+
     if failed:
         print(f"Failed: {', '.join(failed)}", file=sys.stderr)
+        print(
+            "Workspace was still refreshed from existing qNNN.duckdb files on disk.",
+            file=sys.stderr,
+        )
         return 1
 
-    all_ids = sorted(by_id.keys())
-    _build_workspace_db(data_dir, all_ids)
-    _sync_duckdb_workspace_settings(data_dir.parent, all_ids)
     print("Done.")
     return 0
 

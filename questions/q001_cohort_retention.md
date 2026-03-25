@@ -41,6 +41,10 @@ Output one row per cohort week with:
 - `retained_d30` — users active on day 30 (activity_date = signup_date + 30)
 - `retention_rate_d1`, `retention_rate_d7`, `retention_rate_d30` — as percentages (0–100)
 
+Helpful notes:
+- "Retained on D7" here means activity on exactly signup date + 7 days (not any day between D1 and D7).
+- Retention rate is typically `retained_users / cohort_size * 100`.
+
 ### Part B (follow-up)
 The growth team also wants to compare retention between `free` and `premium` users.  
 Extend Part A to break out by `plan_type`.

@@ -1,137 +1,179 @@
 -- Q001 Reference Solution: Cohort Retention Analysis
--- ─────────────────────────────────────────────────────────────────────────────
--- PART A: weekly cohorts × D1 / D7 / D30 retention
--- ─────────────────────────────────────────────────────────────────────────────
+-- -----------------------------------------------------------------------------
+-- PART A: weekly cohorts x D1 / D7 / D30 retention
+-- -----------------------------------------------------------------------------
 
-with cohorts as (
+with cohort_users as (
     select
-        user_id,
-        signup_date,
-        date_trunc('week', signup_date) as cohort_week
+        users.user_id,
+        users.signup_date,
+        date_trunc('week', users.signup_date) as cohort_week
     from users
 ),
-
--- one sub-join per milestone keeps the logic explicit and easy to audit
-d1 as (
-    select distinct c.user_id
-    from cohorts c
-    inner join activity a
-        on  a.user_id       = c.user_id
-        and a.activity_date = c.signup_date + interval '1 day'
+day_1_active_users as (
+    select distinct
+        cohort_users.user_id
+    from cohort_users
+    inner join activity
+        on activity.user_id = cohort_users.user_id
+       and activity.activity_date = cohort_users.signup_date + interval '1 day'
 ),
-
-d7 as (
-    select distinct c.user_id
-    from cohorts c
-    inner join activity a
-        on  a.user_id       = c.user_id
-        and a.activity_date = c.signup_date + interval '7 days'
+day_7_active_users as (
+    select distinct
+        cohort_users.user_id
+    from cohort_users
+    inner join activity
+        on activity.user_id = cohort_users.user_id
+       and activity.activity_date = cohort_users.signup_date + interval '7 days'
 ),
-
-d30 as (
-    select distinct c.user_id
-    from cohorts c
-    inner join activity a
-        on  a.user_id       = c.user_id
-        and a.activity_date = c.signup_date + interval '30 days'
+day_30_active_users as (
+    select distinct
+        cohort_users.user_id
+    from cohort_users
+    inner join activity
+        on activity.user_id = cohort_users.user_id
+       and activity.activity_date = cohort_users.signup_date + interval '30 days'
 ),
-
-final as (
+cohort_retention as (
     select
-        c.cohort_week,
-        count(distinct c.user_id)                                    as cohort_size,
-        count(distinct d1.user_id)                                   as retained_d1,
-        count(distinct d7.user_id)                                   as retained_d7,
-        count(distinct d30.user_id)                                  as retained_d30,
-        round(100.0 * count(distinct d1.user_id)  / count(distinct c.user_id), 1) as retention_rate_d1,
-        round(100.0 * count(distinct d7.user_id)  / count(distinct c.user_id), 1) as retention_rate_d7,
-        round(100.0 * count(distinct d30.user_id) / count(distinct c.user_id), 1) as retention_rate_d30
-    from cohorts c
-    left join d1  on d1.user_id  = c.user_id
-    left join d7  on d7.user_id  = c.user_id
-    left join d30 on d30.user_id = c.user_id
-    group by c.cohort_week
-    order by c.cohort_week
+        cohort_users.cohort_week,
+        count(distinct cohort_users.user_id) as cohort_size,
+        count(distinct day_1_active_users.user_id) as retained_d1,
+        count(distinct day_7_active_users.user_id) as retained_d7,
+        count(distinct day_30_active_users.user_id) as retained_d30,
+        round(
+            100.0 * count(distinct day_1_active_users.user_id) / count(distinct cohort_users.user_id),
+            1
+        ) as retention_rate_d1,
+        round(
+            100.0 * count(distinct day_7_active_users.user_id) / count(distinct cohort_users.user_id),
+            1
+        ) as retention_rate_d7,
+        round(
+            100.0 * count(distinct day_30_active_users.user_id) / count(distinct cohort_users.user_id),
+            1
+        ) as retention_rate_d30
+    from cohort_users
+    left join day_1_active_users
+        on day_1_active_users.user_id = cohort_users.user_id
+    left join day_7_active_users
+        on day_7_active_users.user_id = cohort_users.user_id
+    left join day_30_active_users
+        on day_30_active_users.user_id = cohort_users.user_id
+    group by
+        cohort_users.cohort_week
 )
 
-select * from final;
+select
+    cohort_retention.cohort_week,
+    cohort_retention.cohort_size,
+    cohort_retention.retained_d1,
+    cohort_retention.retained_d7,
+    cohort_retention.retained_d30,
+    cohort_retention.retention_rate_d1,
+    cohort_retention.retention_rate_d7,
+    cohort_retention.retention_rate_d30
+from cohort_retention
+order by cohort_retention.cohort_week;
 
 
--- ─────────────────────────────────────────────────────────────────────────────
+-- -----------------------------------------------------------------------------
 -- PART B: break out by plan_type
--- ─────────────────────────────────────────────────────────────────────────────
+-- -----------------------------------------------------------------------------
 
-with cohorts as (
+with cohort_users as (
     select
-        user_id,
-        signup_date,
-        plan_type,
-        date_trunc('week', signup_date) as cohort_week
+        users.user_id,
+        users.signup_date,
+        users.plan_type,
+        date_trunc('week', users.signup_date) as cohort_week
     from users
 ),
-
-d1 as (
-    select distinct c.user_id
-    from cohorts c
-    inner join activity a
-        on  a.user_id       = c.user_id
-        and a.activity_date = c.signup_date + interval '1 day'
+day_1_active_users as (
+    select distinct
+        cohort_users.user_id
+    from cohort_users
+    inner join activity
+        on activity.user_id = cohort_users.user_id
+       and activity.activity_date = cohort_users.signup_date + interval '1 day'
 ),
-
-d7 as (
-    select distinct c.user_id
-    from cohorts c
-    inner join activity a
-        on  a.user_id       = c.user_id
-        and a.activity_date = c.signup_date + interval '7 days'
+day_7_active_users as (
+    select distinct
+        cohort_users.user_id
+    from cohort_users
+    inner join activity
+        on activity.user_id = cohort_users.user_id
+       and activity.activity_date = cohort_users.signup_date + interval '7 days'
 ),
-
-d30 as (
-    select distinct c.user_id
-    from cohorts c
-    inner join activity a
-        on  a.user_id       = c.user_id
-        and a.activity_date = c.signup_date + interval '30 days'
+day_30_active_users as (
+    select distinct
+        cohort_users.user_id
+    from cohort_users
+    inner join activity
+        on activity.user_id = cohort_users.user_id
+       and activity.activity_date = cohort_users.signup_date + interval '30 days'
 ),
-
-final as (
+cohort_retention_by_plan_type as (
     select
-        c.cohort_week,
-        c.plan_type,
-        count(distinct c.user_id)                                    as cohort_size,
-        count(distinct d1.user_id)                                   as retained_d1,
-        count(distinct d7.user_id)                                   as retained_d7,
-        count(distinct d30.user_id)                                  as retained_d30,
-        round(100.0 * count(distinct d1.user_id)  / count(distinct c.user_id), 1) as retention_rate_d1,
-        round(100.0 * count(distinct d7.user_id)  / count(distinct c.user_id), 1) as retention_rate_d7,
-        round(100.0 * count(distinct d30.user_id) / count(distinct c.user_id), 1) as retention_rate_d30
-    from cohorts c
-    left join d1  on d1.user_id  = c.user_id
-    left join d7  on d7.user_id  = c.user_id
-    left join d30 on d30.user_id = c.user_id
-    group by c.cohort_week, c.plan_type
-    order by c.cohort_week, c.plan_type
+        cohort_users.cohort_week,
+        cohort_users.plan_type,
+        count(distinct cohort_users.user_id) as cohort_size,
+        count(distinct day_1_active_users.user_id) as retained_d1,
+        count(distinct day_7_active_users.user_id) as retained_d7,
+        count(distinct day_30_active_users.user_id) as retained_d30,
+        round(
+            100.0 * count(distinct day_1_active_users.user_id) / count(distinct cohort_users.user_id),
+            1
+        ) as retention_rate_d1,
+        round(
+            100.0 * count(distinct day_7_active_users.user_id) / count(distinct cohort_users.user_id),
+            1
+        ) as retention_rate_d7,
+        round(
+            100.0 * count(distinct day_30_active_users.user_id) / count(distinct cohort_users.user_id),
+            1
+        ) as retention_rate_d30
+    from cohort_users
+    left join day_1_active_users
+        on day_1_active_users.user_id = cohort_users.user_id
+    left join day_7_active_users
+        on day_7_active_users.user_id = cohort_users.user_id
+    left join day_30_active_users
+        on day_30_active_users.user_id = cohort_users.user_id
+    group by
+        cohort_users.cohort_week,
+        cohort_users.plan_type
 )
 
-select * from final;
+select
+    cohort_retention_by_plan_type.cohort_week,
+    cohort_retention_by_plan_type.plan_type,
+    cohort_retention_by_plan_type.cohort_size,
+    cohort_retention_by_plan_type.retained_d1,
+    cohort_retention_by_plan_type.retained_d7,
+    cohort_retention_by_plan_type.retained_d30,
+    cohort_retention_by_plan_type.retention_rate_d1,
+    cohort_retention_by_plan_type.retention_rate_d7,
+    cohort_retention_by_plan_type.retention_rate_d30
+from cohort_retention_by_plan_type
+order by
+    cohort_retention_by_plan_type.cohort_week,
+    cohort_retention_by_plan_type.plan_type;
 
 
--- ─────────────────────────────────────────────────────────────────────────────
+-- -----------------------------------------------------------------------------
 -- PART C discussion notes
--- ─────────────────────────────────────────────────────────────────────────────
+-- -----------------------------------------------------------------------------
 
 -- Immature cohorts: filter out cohorts where signup_date > current_date - 30
--- (they can't have hit D30 yet). Otherwise you'd show 0% retention for recent
--- cohorts and mislead stakeholders. Flag immature cohorts or exclude them.
+-- (they cannot have hit D30 yet). Otherwise recent cohorts look artificially
+-- weak. Flag immature cohorts or exclude them from D30 reporting.
 
--- Duplicate activity rows: DISTINCT on user_id inside each milestone CTE
--- handles this. The question is about *whether* a user was active, not
--- how many times. Using COUNT(DISTINCT) in the outer group-by also works.
+-- Duplicate activity rows: distinct user_id in each milestone CTE ensures
+-- retention is measured as "was active" rather than "number of activities".
 
 -- dbt model design:
 --   grain: cohort_week (or cohort_week + plan_type for Part B)
---   full refresh is safe here — the dataset is bounded by signup dates and
---   the retention windows are fixed offsets (D1, D7, D30). An incremental
---   approach is tricky because a row's D30 retention value can only be
---   finalized 30 days after signup; you'd need to re-process recent cohorts.
---   Simpler to do full refresh unless the dataset is huge.
+--   full refresh is safe for this dataset because retention windows are fixed.
+--   incremental can work, but requires reprocessing recent cohorts until D30
+--   is finalized.

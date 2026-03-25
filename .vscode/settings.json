@@ -18,6 +18,13 @@
             "path": "${workspaceFolder}/data/q001.duckdb",
             "readOnly": false,
             "attached": true
+        },
+        {
+            "alias": "q002",
+            "type": "file",
+            "path": "${workspaceFolder}/data/q002.duckdb",
+            "readOnly": false,
+            "attached": true
         }
     ],
     "duckdb.defaultDatabase": "workspace"

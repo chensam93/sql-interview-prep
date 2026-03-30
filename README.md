@@ -6,7 +6,7 @@ A live, queryable SQL practice environment for senior analytics engineering inte
 
 1. Pick a question from `questions/`
 2. Run `python data/bootstrap.py` (builds per-question DBs and refreshes `data/workspace_verify.duckdb`)
-3. Query via **`data/workspace_verify.duckdb`**: each question is a schema (`q001`, `q002`, …). Use `scratchpad.sql` (gitignored) — attach once, then switch with `USE workspace_db.q00N;`
+3. Query via **`data/workspace_verify.duckdb`**: each question is a schema (`q001`, `q002`, …). Use **`scratchpad.sql`** (curated in-repo template) — attach once, then switch with `USE workspace_db.q00N;`
 4. Review `solutions/` when ready
 
 ## Setup
@@ -43,6 +43,7 @@ python data/verify_solution_sql.py --sql solutions/q002_monthly_revenue_trends.s
 
 | Path | Role |
 |------|------|
+| `scratchpad.sql` | Session template (attach + question switch + sanity checks) |
 | `data/generators/` | Dataset scripts |
 | `data/qNNN.duckdb` | Per-question DB |
 | `data/workspace_verify.duckdb` | Merged snapshot for practice |

@@ -5,14 +5,13 @@ A live, queryable SQL practice environment for senior analytics engineering inte
 ## How it works
 
 1. Pick a question from `questions/`
-2. Build local DuckDB files with `python data/bootstrap.py` (see **Data** below)
-3. Query `data/workspace.duckdb` (default in workspace settings); each question lives in its own schema like `q001`
-4. Write your answer in `scratchpad.sql` (gitignored — your private workspace)
-5. Review the reference solution in `solutions/` when ready
+2. Run `python data/bootstrap.py` (builds per-question DBs and refreshes `data/workspace_verify.duckdb`)
+3. Query via **`data/workspace_verify.duckdb`**: each question is a schema (`q001`, `q002`, …). Use `scratchpad.sql` (gitignored) — attach once, then switch with `USE workspace_db.q00N;`
+4. Review `solutions/` when ready
 
 ## Setup
 
-Requires Python 3.9+:
+Python 3.9+:
 
 ```bash
 pip install -r requirements.txt
@@ -20,53 +19,48 @@ pip install -r requirements.txt
 
 ## Data
 
-`*.duckdb` files are gitignored (regenerate locally). One command builds **every** question that has a `data/generators/generate_qNNN.py` script and also creates `data/workspace.duckdb`:
+`*.duckdb` files are gitignored. One command runs every `data/generators/generate_qNNN.py` and merges available `qNNN.duckdb` files into a snapshot:
 
 ```bash
 python data/bootstrap.py
 ```
 
-Build specific questions only:
+- **`data/workspace_build.duckdb`** — temporary merge output (safe while `workspace.duckdb` may be locked in the IDE)
+- **`data/workspace_verify.duckdb`** — copy used for **scratchpad + DuckDB Explorer default** (read-only in settings when possible)
+- **`data/qNNN.duckdb`** — per-question sources; if one is open in Cursor, bootstrap may skip merging that question until you detach it
 
-```bash
-python data/bootstrap.py q001
-```
+**Adding a question:** `questions/…`, `data/generators/generate_qNNN.py` → `data/qNNN.duckdb`, `solutions/…`. Re-run bootstrap.
 
-**Adding a new question:** add `questions/qNNN_….md`, `data/generators/generate_qNNN.py` (writing `data/qNNN.duckdb`), and `solutions/…`. The next `bootstrap.py` run picks up the new generator automatically.
-
-**Cursor / VS Code:** **Terminal → Run Build Task** (or `Ctrl+Shift+B` / `Cmd+Shift+B`) runs `python data/bootstrap.py` as the default build task.
-
-`bootstrap.py` also syncs `.vscode/settings.json` so DuckDB Explorer defaults to `workspace.duckdb`. Switch questions by changing schema, e.g. `SET schema = 'q001';` or by querying `q001.users`, `q001.activity`, etc.
-
-`bootstrap.py` also refreshes `data/workspace_verify.duckdb`, a validation snapshot used for non-interactive SQL checks.
-
-To rebuild automatically when you open this folder, add `"runOptions": { "runOn": "folderOpen" }` to that task in `.vscode/tasks.json` (fine for small datasets; skip if generation gets slow).
-
-(You can `pip install duckdb` directly instead of `requirements.txt` if you prefer.)
-
-### Directory layout
-
-- `data/generators/` - question-specific data builders (`generate_qNNN.py`)
-- `data/qNNN.duckdb` - per-question DuckDB files produced by generators
-- `data/workspace.duckdb` - combined database with one schema per question (`q001`, `q002`, ...)
-- `data/workspace_verify.duckdb` - validation snapshot for automated SQL verification
+**Build task:** **Terminal → Run Build Task** (`Ctrl+Shift+B`) runs `python data/bootstrap.py`.
 
 ### Validate solutions
 
 ```bash
-python data/verify_solution_sql.py --sql solutions/q001_cohort_retention.sql --schema q001
+python data/verify_solution_sql.py --sql solutions/q002_monthly_revenue_trends.sql --schema q002
 ```
+
+### Layout
+
+| Path | Role |
+|------|------|
+| `data/generators/` | Dataset scripts |
+| `data/qNNN.duckdb` | Per-question DB |
+| `data/workspace_verify.duckdb` | Merged snapshot for practice |
+| `data/verify_solution_sql.py` | Non-interactive SQL check |
 
 ## Questions
 
 | # | Topic | Concepts tested |
 |---|-------|-----------------|
-| [Q001](questions/q001_cohort_retention.md) | Cohort Retention | window functions, date math, self-join vs window, cohort bucketing |
-| [Q002](questions/q002_monthly_revenue_trends.md) | Monthly Revenue Trends | aggregation, rolling window average, ranking |
+| [Q001](questions/q001_cohort_retention.md) | Cohort Retention | windows, dates, cohorts, ratios |
+| [Q002](questions/q002_monthly_revenue_trends.md) | Monthly Revenue Trends | aggregation, rolling average, ranking |
 
 ## Philosophy
 
-Questions mirror real senior AE interview scenarios:
-- Ambiguous requirements that need clarification
-- Business logic nuance, not just syntax
-- Multiple valid approaches with trade-offs worth discussing
+Questions mirror senior AE interviews: ambiguous specs, business nuance, multiple defensible SQL shapes.
+
+## Provenance
+
+**Tooling and scaffolding** (bootstrap, workspace snapshots, VS Code/Cursor config, generators, many solutions, and docs) were produced primarily with **Cursor’s Agent** (automated coding assistant in this repo’s chat sessions). Cursor routes requests to **vendor-managed models**; there is **no durable, public per-commit model ID** exposed in the UI, so this README does not list specific model names.
+
+**You should review** generated SQL and Python like any other PR. Interview prompts are meant for practice, not as authoritative business definitions.

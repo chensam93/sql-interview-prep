@@ -50,23 +50,17 @@ def _sync_duckdb_workspace_settings(root_dir: Path, question_ids: list[str]) -> 
                 )
                 return
 
+    # Attach only a single, non-interactive snapshot for editing/queries.
+    # Per-question .duckdb files may be locked by Cursor; schema switching
+    # happens inside the workspace snapshot instead.
     databases = [
         {
             "alias": "workspace",
             "type": "file",
-            "path": "${workspaceFolder}/data/workspace.duckdb",
-            "readOnly": False,
+            "path": "${workspaceFolder}/data/workspace_verify.duckdb",
+            "readOnly": True,
             "attached": True,
         }
-    ] + [
-        {
-            "alias": qid,
-            "type": "file",
-            "path": f"${{workspaceFolder}}/data/{qid}.duckdb",
-            "readOnly": False,
-            "attached": True,
-        }
-        for qid in question_ids
     ]
     existing["duckdb.databases"] = databases
     existing["duckdb.defaultDatabase"] = "workspace"
@@ -84,7 +78,10 @@ def _build_workspace_db(data_dir: Path, question_ids: list[str]) -> list[str]:
     import duckdb
 
     skipped: list[str] = []
-    workspace_path = data_dir / "workspace.duckdb"
+    workspace_path = data_dir / "workspace_build.duckdb"
+
+    if workspace_path.exists():
+        workspace_path.unlink()
 
     conn = duckdb.connect(str(workspace_path))
     try:
@@ -148,8 +145,10 @@ def _build_workspace_db(data_dir: Path, question_ids: list[str]) -> list[str]:
 
 
 def _refresh_verification_db(data_dir: Path) -> None:
-    workspace_path = data_dir / "workspace.duckdb"
+    workspace_path = data_dir / "workspace_build.duckdb"
     verification_path = data_dir / "workspace_verify.duckdb"
+    if verification_path.exists():
+        verification_path.unlink()
     shutil.copy2(workspace_path, verification_path)
 
 

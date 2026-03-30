@@ -8,22 +8,8 @@
         {
             "alias": "workspace",
             "type": "file",
-            "path": "${workspaceFolder}/data/workspace.duckdb",
-            "readOnly": false,
-            "attached": true
-        },
-        {
-            "alias": "q001",
-            "type": "file",
-            "path": "${workspaceFolder}/data/q001.duckdb",
-            "readOnly": false,
-            "attached": true
-        },
-        {
-            "alias": "q002",
-            "type": "file",
-            "path": "${workspaceFolder}/data/q002.duckdb",
-            "readOnly": false,
+            "path": "${workspaceFolder}/data/workspace_verify.duckdb",
+            "readOnly": true,
             "attached": true
         }
     ],

@@ -6,7 +6,7 @@ A live, queryable SQL practice environment for senior analytics engineering inte
 
 1. Pick a question from `questions/`
 2. Run `python data/bootstrap.py` (builds per-question DBs and refreshes `data/workspace_verify.duckdb`)
-3. Query via **`data/workspace_verify.duckdb`**: each question is a schema (`q001`, `q002`, …). Use **`scratchpad.sql`** (curated in-repo template) — attach once, then switch with `USE workspace_db.q00N;`
+3. Query via **`data/workspace_verify.duckdb`**: each question is a schema (`q001`, `q002`, …). Use **`scratchpad.sql`** (shared template) — attach once, then switch with `USE workspace_db.q00N;` For private notes, use **`personal_scratch.sql`** (gitignored).
 4. Review `solutions/` when ready
 
 ## Setup

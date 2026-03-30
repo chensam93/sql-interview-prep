@@ -1,4 +1,4 @@
-scratch.sql
+personal_scratch.sql
 *.duckdb
 *.duckdb.wal
 __pycache__/

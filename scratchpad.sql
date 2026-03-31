@@ -15,3 +15,13 @@ SHOW TABLES;
 
 -- Start your answer below
 -- SELECT ...
+select
+    orders.order_id,
+    date_trunc('month', orders.order_date) as order_month
+from orders
+left join order_items
+    on orders.order_id = order_items.order_id
+;
+
+select count(*), count(distinct order_id) 
+from order_items

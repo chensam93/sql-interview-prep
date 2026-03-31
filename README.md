@@ -5,8 +5,8 @@ A live, queryable SQL practice environment for senior analytics engineering inte
 ## How it works
 
 1. Pick a question from `questions/`
-2. Run `python data/bootstrap.py` (builds per-question DBs and refreshes `data/workspace_verify.duckdb`)
-3. Query via **`data/workspace_verify.duckdb`**: each question is a schema (`q001`, `q002`, …). Use **`scratchpad.sql`** (shared template) — attach once, then switch with `USE workspace_db.q00N;` For private notes, use **`personal_scratch.sql`** (gitignored).
+2. Run `python data/bootstrap.py` (writes per-question DBs under `data/duckdb/` and refreshes `data/duckdb/workspace_verify.duckdb`)
+3. Query via **`data/duckdb/workspace_verify.duckdb`**: each question is a schema (`q001`, `q002`, …). Use **`scratchpad.sql`** (shared template) — attach once, then switch with `USE workspace_db.q00N;` For private notes, use **`personal_scratch.sql`** (gitignored).
 4. Review `solutions/` when ready
 
 ## Setup
@@ -19,17 +19,23 @@ pip install -r requirements.txt
 
 ## Data
 
-`*.duckdb` files are gitignored. One command runs every `data/generators/generate_qNNN.py` and merges available `qNNN.duckdb` files into a snapshot:
+`*.duckdb` files are gitignored. One command runs every `data/generators/generate_qNNN.py` and merges question DBs into a single practice snapshot:
 
 ```bash
 python data/bootstrap.py
 ```
 
-- **`data/workspace_build.duckdb`** — temporary merge output (safe while `workspace.duckdb` may be locked in the IDE)
-- **`data/workspace_verify.duckdb`** — copy used for **scratchpad + DuckDB Explorer default** (read-only in settings when possible)
-- **`data/qNNN.duckdb`** — per-question sources; if one is open in Cursor, bootstrap may skip merging that question until you detach it
+### What the DuckDB files are
 
-**Adding a question:** `questions/…`, `data/generators/generate_qNNN.py` → `data/qNNN.duckdb`, `solutions/…`. Re-run bootstrap.
+| File | Role |
+|------|------|
+| `data/duckdb/q001.duckdb`, `q002.duckdb`, … | **Source** DB for each question (what generators build). Tables live in schema `main`. |
+| `data/duckdb/workspace_build.duckdb` | **Temporary** merge: copies each `qNNN` into its own schema (`q001`, `q002`, …) then feeds the verify file. |
+| `data/duckdb/workspace_verify.duckdb` | **What you query in practice** — one file, switch schema to change question. Safe to open while per-question files may be locked. |
+
+If a per-question file is open in Cursor, bootstrap may skip merging that question until you detach it. Bootstrap still looks for **legacy** `data/qNNN.duckdb` if the new path is missing (one-time migration).
+
+**Adding a question:** `questions/…`, `data/generators/generate_qNNN.py` → `data/duckdb/qNNN.duckdb`, `solutions/…`. Re-run bootstrap.
 
 **Build task:** **Terminal → Run Build Task** (`Ctrl+Shift+B`) runs `python data/bootstrap.py`.
 
@@ -45,8 +51,7 @@ python data/verify_solution_sql.py --sql solutions/q002_monthly_revenue_trends.s
 |------|------|
 | `scratchpad.sql` | Session template (attach + question switch + sanity checks) |
 | `data/generators/` | Dataset scripts |
-| `data/qNNN.duckdb` | Per-question DB |
-| `data/workspace_verify.duckdb` | Merged snapshot for practice |
+| `data/duckdb/` | All `.duckdb` artifacts (per-question + workspace snapshots) |
 | `data/verify_solution_sql.py` | Non-interactive SQL check |
 
 ## Questions

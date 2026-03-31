@@ -6,7 +6,7 @@ Run directly:
 Or build every question at once:
     python data/bootstrap.py
 
-Creates: data/q001.duckdb
+Creates: data/duckdb/q001.duckdb
 """
 
 import duckdb
@@ -16,7 +16,8 @@ from pathlib import Path
 
 random.seed(42)
 
-DB_PATH = Path(__file__).resolve().parent.parent / "q001.duckdb"
+DB_PATH = Path(__file__).resolve().parent.parent / "duckdb" / "q001.duckdb"
+DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 conn = duckdb.connect(str(DB_PATH))
 
 START_DATE = date(2024, 10, 1)

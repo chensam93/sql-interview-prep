@@ -58,7 +58,7 @@ Extend Part A to break out by `plan_type`.
 
 ## Data
 
-Connect to: `data/q001.duckdb`
+Connect to: `data/duckdb/workspace_verify.duckdb` and `USE workspace_db.q001;` (or open `data/duckdb/q001.duckdb` directly — schema `main`).
 
 Tables: `users`, `activity`
 

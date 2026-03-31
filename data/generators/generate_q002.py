@@ -6,7 +6,7 @@ Run directly:
 Or build every question at once:
     python data/bootstrap.py
 
-Creates: data/q002.duckdb
+Creates: data/duckdb/q002.duckdb
 """
 
 import duckdb
@@ -16,7 +16,8 @@ from pathlib import Path
 
 random.seed(7)
 
-DATABASE_PATH = Path(__file__).resolve().parent.parent / "q002.duckdb"
+DATABASE_PATH = Path(__file__).resolve().parent.parent / "duckdb" / "q002.duckdb"
+DATABASE_PATH.parent.mkdir(parents=True, exist_ok=True)
 connection = duckdb.connect(str(DATABASE_PATH))
 
 connection.execute("drop table if exists orders")

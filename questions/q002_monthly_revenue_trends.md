@@ -57,6 +57,6 @@ Helpful note:
 
 ## Data
 
-Connect to: `data/workspace.duckdb` and run `SET schema = 'q002';`
+Connect to: `data/duckdb/workspace_verify.duckdb` and run `USE workspace_db.q002;` (see `scratchpad.sql`).
 
-If you open `data/q002.duckdb` directly instead, tables live in schema `main` — do not use `SET schema = 'q002'`. After adding or changing generators, run `python data/bootstrap.py` so `workspace.duckdb` includes the `q002` schema.
+If you open `data/duckdb/q002.duckdb` directly instead, tables live in schema `main` — do not use `USE workspace_db.q002`. After adding or changing generators, run `python data/bootstrap.py` so the verify snapshot includes the `q002` schema.

@@ -7,7 +7,7 @@ From repo root:
   python data/bootstrap.py q001 q002 # several
 
 Convention for new questions: add data/generators/generate_qNNN.py that writes
-data/qNNN.duckdb
+data/duckdb/qNNN.duckdb
 (this repo’s pattern). Re-run this script after pulling new generators.
 """
 
@@ -20,6 +20,21 @@ import json
 import runpy
 import sys
 from pathlib import Path
+
+DUCKDB_DIR_NAME = "duckdb"
+
+
+def _duckdb_dir(data_dir: Path) -> Path:
+    return data_dir / DUCKDB_DIR_NAME
+
+
+def _question_db_path(data_dir: Path, qid: str) -> Path:
+    """Prefer data/duckdb/qNNN.duckdb; fall back to legacy data/qNNN.duckdb."""
+    preferred = _duckdb_dir(data_dir) / f"{qid}.duckdb"
+    if preferred.exists():
+        return preferred
+    legacy = data_dir / f"{qid}.duckdb"
+    return legacy if legacy.exists() else preferred
 
 
 def _generators(data_dir: Path) -> dict[str, Path]:
@@ -57,7 +72,7 @@ def _sync_duckdb_workspace_settings(root_dir: Path, question_ids: list[str]) -> 
         {
             "alias": "workspace",
             "type": "file",
-            "path": "${workspaceFolder}/data/workspace_verify.duckdb",
+            "path": "${workspaceFolder}/data/duckdb/workspace_verify.duckdb",
             "readOnly": True,
             "attached": True,
         }
@@ -78,7 +93,9 @@ def _build_workspace_db(data_dir: Path, question_ids: list[str]) -> list[str]:
     import duckdb
 
     skipped: list[str] = []
-    workspace_path = data_dir / "workspace_build.duckdb"
+    duckdb_dir = _duckdb_dir(data_dir)
+    duckdb_dir.mkdir(parents=True, exist_ok=True)
+    workspace_path = duckdb_dir / "workspace_build.duckdb"
 
     if workspace_path.exists():
         workspace_path.unlink()
@@ -86,7 +103,7 @@ def _build_workspace_db(data_dir: Path, question_ids: list[str]) -> list[str]:
     conn = duckdb.connect(str(workspace_path))
     try:
         for qid in question_ids:
-            source_path = data_dir / f"{qid}.duckdb"
+            source_path = _question_db_path(data_dir, qid)
             if not source_path.exists():
                 continue
 
@@ -145,8 +162,9 @@ def _build_workspace_db(data_dir: Path, question_ids: list[str]) -> list[str]:
 
 
 def _refresh_verification_db(data_dir: Path) -> None:
-    workspace_path = data_dir / "workspace_build.duckdb"
-    verification_path = data_dir / "workspace_verify.duckdb"
+    duckdb_dir = _duckdb_dir(data_dir)
+    workspace_path = duckdb_dir / "workspace_build.duckdb"
+    verification_path = duckdb_dir / "workspace_verify.duckdb"
     if verification_path.exists():
         verification_path.unlink()
     shutil.copy2(workspace_path, verification_path)
@@ -159,6 +177,7 @@ def main() -> int:
         return 1
 
     data_dir = Path(__file__).resolve().parent
+    _duckdb_dir(data_dir).mkdir(parents=True, exist_ok=True)
     by_id = _generators(data_dir)
     if not by_id:
         print("No data/generators/generate_q*.py scripts found.", file=sys.stderr)

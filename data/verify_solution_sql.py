@@ -1,9 +1,8 @@
 """
 Validate a solution SQL file against a local DuckDB.
 
-Default database is data/workspace_verify.duckdb (a bootstrap snapshot intended
-for non-interactive validation). If it does not exist, the script falls back to
-data/workspace.duckdb.
+Default database is data/duckdb/workspace_verify.duckdb (bootstrap snapshot).
+Falls back to legacy paths if present.
 
 Examples:
   python data/verify_solution_sql.py --sql solutions/q001_cohort_retention.sql
@@ -25,8 +24,8 @@ def main() -> int:
     parser.add_argument("--sql", required=True, help="Path to SQL file to execute.")
     parser.add_argument(
         "--database",
-        default=str(repo_root / "data" / "workspace_verify.duckdb"),
-        help="DuckDB file to run against (default: data/workspace_verify.duckdb).",
+        default=str(repo_root / "data" / "duckdb" / "workspace_verify.duckdb"),
+        help="DuckDB file to run against (default: data/duckdb/workspace_verify.duckdb).",
     )
     parser.add_argument(
         "--schema",
@@ -46,9 +45,13 @@ def main() -> int:
     if not database_path.is_absolute():
         database_path = (repo_root / database_path).resolve()
     if not database_path.exists():
-        fallback = repo_root / "data" / "workspace.duckdb"
-        if fallback.exists():
-            database_path = fallback
+        for fallback in (
+            repo_root / "data" / "workspace_verify.duckdb",
+            repo_root / "data" / "workspace.duckdb",
+        ):
+            if fallback.exists():
+                database_path = fallback
+                break
         else:
             print(f"Database file not found: {args.database}", file=sys.stderr)
             return 1

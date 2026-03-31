@@ -10,7 +10,7 @@
             "type": "file",
             "path": "${workspaceFolder}/data/workspace_verify.duckdb",
             "readOnly": true,
-            "attached": true
+            "attached": false
         }
     ],
     "duckdb.defaultDatabase": "workspace"

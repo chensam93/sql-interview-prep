@@ -9,6 +9,11 @@ A live, queryable SQL practice environment for senior analytics engineering inte
 3. Query via **`data/workspace_verify.duckdb`**: each question is a schema (`q001`, `q002`, …). Use **`scratchpad.sql`** (shared template) — attach once, then switch with `USE workspace_db.q00N;` For private notes, use **`personal_scratch.sql`** (gitignored).
 4. Review `solutions/` when ready
 
+### Practice vs normal editing
+
+- **Open the folder** as usual → full SQL autocomplete (handy for `solutions/`).
+- **Open `sql-interview-prep.practice.code-workspace`** in Cursor/VS Code → same repo, but workspace settings turn off SQL popups and inline suggestions so `scratchpad.sql` is less “answer-y.” No need to toggle settings by hand each session—just which window you opened.
+
 ## Setup
 
 Python 3.9+:

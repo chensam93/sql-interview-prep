@@ -62,6 +62,13 @@ If a per-question file is open in Cursor, bootstrap may skip merging that questi
 ### Validate solutions
 
 ```bash
+python data/verify_solution_sql.py --sql solutions/<question_solution>.sql --schema q00N
+```
+
+Examples:
+
+```bash
+python data/verify_solution_sql.py --sql solutions/q001_cohort_retention.sql --schema q001
 python data/verify_solution_sql.py --sql solutions/q002_monthly_revenue_trends.sql --schema q002
 ```
 

@@ -1,16 +1,14 @@
 # SQL Interview Prep
 
-A live, queryable SQL practice environment for senior analytics engineering interviews (personal project). I wanted to practice my SQL for analytic engineer technical interviews but I didn't want to rely on Leetcode or similar websites. I just wanted to use Cursor and adjust the questions/paramters myself.
+A live, queryable SQL practice environment for senior analytics engineering interviews (personal project).
 
 ## Practice-Only Disclaimer
-This repo is a barebones framework I use for SQL interview practice. It is not intended as a public package, production system, or “reference implementation” for others to consume.
+This repo is my SQL interview practice scaffolding. It is not intended as a public package, production system, or reference implementation for others to consume.
 
-- Data, generators, and solutions are provided for practice convenience only (not for correctness guarantees or completeness).
-- The structure/scaffolding may change frequently as I iterate on my own workflow.
-- You are responsible for reviewing any SQL/Python before relying on it anywhere.
+Expect incomplete/iterating code; review any SQL/Python before relying on it.
 
-## AI / LLM Disclaimer (extent of creation)
-Some tooling/scaffolding (bootstrap, generators, and much of the SQL/Python glue) was produced with **Cursor’s Agent** using vendor-managed models. This repo is for practice and a fun vibe coding personal project - you should review any generated code before relying on it.
+## Note on AI assistance
+Some tooling/scaffolding was produced with **Cursor’s Agent**. Treat generated code as a draft and review it.
 
 ## How it works
 
@@ -75,8 +73,3 @@ python data/verify_solution_sql.py --sql solutions/q002_monthly_revenue_trends.s
 
 Questions mirror senior AE interviews: ambiguous specs, business nuance, multiple defensible SQL shapes.
 
-## Provenance
-
-**Tooling and scaffolding** (bootstrap, workspace snapshots, VS Code/Cursor config, generators, many solutions, and docs) were produced primarily with **Cursor’s Agent** (automated coding assistant in this repo’s chat sessions). Cursor routes requests to **vendor-managed models**; there is **no durable, public per-commit model ID** exposed in the UI, so this README does not list specific model names.
-
-**You should review** generated SQL and Python like any other PR. Interview prompts are meant for practice, not as authoritative business definitions.

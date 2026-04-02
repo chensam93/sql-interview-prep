@@ -1,6 +1,13 @@
 # SQL Interview Prep
 
-A live, queryable SQL practice environment for senior analytics engineering interviews.
+A live, queryable SQL practice environment for senior analytics engineering interviews (personal project).
+
+## Practice-Only Disclaimer
+This repo is a barebones framework I use for SQL interview practice. It is not intended as a public package, production system, or “reference implementation” for others to consume.
+
+- Data, generators, and solutions are provided for practice convenience only (not for correctness guarantees or completeness).
+- The structure/scaffolding may change frequently as I iterate on my own workflow.
+- You are responsible for reviewing any SQL/Python before relying on it anywhere.
 
 ## How it works
 

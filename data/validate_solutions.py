@@ -174,6 +174,11 @@ def main() -> int:
             "sql": REPO_ROOT / "solutions" / "core" / "q001_monthly_revenue_trends.sql",
         },
         {
+            "name": "core/q002_channel_customer_mix",
+            "database": REPO_ROOT / "data" / "duckdb" / "q002_core.duckdb",
+            "sql": REPO_ROOT / "solutions" / "core" / "q002_channel_customer_mix.sql",
+        },
+        {
             "name": "higher/q001_subscription_mrr_movements",
             "database": REPO_ROOT / "data" / "duckdb" / "q001_higher.duckdb",
             "sql": REPO_ROOT / "solutions" / "higher" / "q001_subscription_mrr_movements.sql",
@@ -187,6 +192,7 @@ def main() -> int:
         "- Scope: execute each reference solution statement against its bucket-specific DuckDB file.",
         "- Assumption (lower): milestone events counted once per user using `max(case ...)` flags.",
         "- Assumption (core): rolling average uses available history for early months (fewer than 3 rows).",
+        "- Assumption (core q002): prior-month channel revenue defaults to `0` when missing for MoM delta.",
         "- Assumption (higher): missing prior month mrr is treated as `0` via `lag(..., default 0)` logic.",
         "",
     ]

@@ -70,6 +70,7 @@ Examples:
 ```bash
 python data/verify_solution_sql.py --sql solutions/lower/q001_conversion_funnel_basics.sql --schema q001_lower
 python data/verify_solution_sql.py --sql solutions/core/q001_monthly_revenue_trends.sql --schema q001_core
+python data/verify_solution_sql.py --sql solutions/core/q002_channel_customer_mix.sql --schema q002_core
 python data/verify_solution_sql.py --sql solutions/higher/q001_subscription_mrr_movements.sql --schema q001_higher
 ```
 
@@ -88,6 +89,7 @@ python data/verify_solution_sql.py --sql solutions/higher/q001_subscription_mrr_
 |---|-------------------|-------|-----------------|
 | [Q001](questions/lower/q001_conversion_funnel_basics.md) | lower | Conversion Funnel Basics | staged aggregation, distinct users, conversion rates |
 | [Q001](questions/core/q001_monthly_revenue_trends.md) | core (mid + senior blend) | Monthly Revenue Trends | aggregation, rolling average, ranking |
+| [Q002](questions/core/q002_channel_customer_mix.md) | core (mid + senior blend) | Channel Revenue Mix (New vs Returning) | ctes, window functions, conditional aggregation, ranking |
 | [Q001](questions/higher/q001_subscription_mrr_movements.md) | higher | Subscription MRR Movements | ctes, window functions, lifecycle classification |
 
 

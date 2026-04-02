@@ -1,9 +1,10 @@
 # Solution Validation Log
 
-- Generated at: 2026-04-02T11:14:13.182282+00:00
+- Generated at: 2026-04-02T11:44:30.297359+00:00
 - Scope: execute each reference solution statement against its bucket-specific DuckDB file.
 - Assumption (lower): milestone events counted once per user using `max(case ...)` flags.
 - Assumption (core): rolling average uses available history for early months (fewer than 3 rows).
+- Assumption (core q002): prior-month channel revenue defaults to `0` when missing for MoM delta.
 - Assumption (higher): missing prior month mrr is treated as `0` via `lag(..., default 0)` logic.
 
 ## lower/q001_conversion_funnel_basics
@@ -62,6 +63,35 @@ order_month, product_id, product_revenue
 2024-04-01, prod_e, 7361.000
 2024-05-01, prod_e, 12393.000
 ... (1 more rows)
+```
+
+## core/q002_channel_customer_mix
+
+- Database: `data\duckdb\q002_core.duckdb`
+- SQL file: `solutions\core\q002_channel_customer_mix.sql`
+
+- Statement 1: `36` rows
+
+```text
+order_month, channel, gross_revenue, new_customer_revenue, returning_customer_revenue, returning_revenue_share_pct
+2024-01-01, affiliate, 3201.000, 3201.000, 0.000, 0.0
+2024-01-01, email, 10160.000, 10160.000, 0.000, 0.0
+2024-01-01, organic, 17587.000, 17587.000, 0.000, 0.0
+2024-01-01, paid_search, 12193.000, 12193.000, 0.000, 0.0
+2024-02-01, affiliate, 6051.000, 4127.000, 1924.000, 31.8
+... (31 more rows)
+```
+
+- Statement 2: `9` rows
+
+```text
+order_month, channel, gross_revenue, mom_revenue_delta
+2024-01-01, organic, 17587.000, 17587.000
+2024-02-01, affiliate, 6051.000, 2850.000
+2024-03-01, paid_search, 16753.000, 7030.000
+2024-04-01, organic, 18148.000, 5384.000
+2024-05-01, email, 13472.000, 5756.000
+... (4 more rows)
 ```
 
 ## higher/q001_subscription_mrr_movements

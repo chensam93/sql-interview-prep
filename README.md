@@ -9,6 +9,9 @@ This repo is a barebones framework I use for SQL interview practice. It is not i
 - The structure/scaffolding may change frequently as I iterate on my own workflow.
 - You are responsible for reviewing any SQL/Python before relying on it anywhere.
 
+## AI / LLM Disclaimer (extent of creation)
+Some tooling/scaffolding (bootstrap, generators, and much of the SQL/Python glue) was produced with **Cursor’s Agent** using vendor-managed models. This repo is for practice only, and you should review any generated code before relying on it.
+
 ## How it works
 
 1. Pick a question from `questions/`

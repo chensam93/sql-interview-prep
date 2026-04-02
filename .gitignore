@@ -4,3 +4,4 @@ personal_scratch.sql
 __pycache__/
 *.pyc
 .env
+progress/

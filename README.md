@@ -9,7 +9,7 @@ This repo is my SQL interview practice scaffolding. It is not intended as a publ
 Expect incomplete/iterating code; review any SQL/Python before relying on it.
 
 ## Note on AI assistance
-Some scaffolding was produced with **Cursor’s Agent**. My best-effort estimate:
+Vast majority of code was produced with **Cursor’s Agent**. My best-effort estimate:
 
 - Repo wiring & “how to run” glue (VS Code/Cursor config, `data/bootstrap.py`, per-question generators, verify script, scratchpad wiring): ~70–90% AI-assisted.
 - Interview content (the question markdown prompts + question-specific solution SQL in `solutions/`): ~20–40% AI-assisted (mostly for SQL shape/debugging), with the core modeling/intent mostly coming from me.

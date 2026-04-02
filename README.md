@@ -23,6 +23,12 @@ This is very much **vibe-coded**—treat it as a practice scaffold/draft, not a 
 3. Query via **`data/duckdb/workspace_verify.duckdb`**: each question is a schema (`q001`, `q002`, …). Use **`scratchpad.sql`** (shared template) — attach once, then switch with `USE workspace_db.q00N;` For private notes, use **`personal_scratch.sql`** (gitignored).
 4. Review `solutions/` when ready
 
+## Config notes (requirements + editor)
+- Requirements: `python 3.9+`, and `pip install -r requirements.txt` (only `duckdb`).
+- Editor integration: `.vscode/settings.json` points DuckDB Explorer at `data/duckdb/workspace_verify.duckdb` and opens it read-only.
+- Build task: `.vscode/tasks.json` defines `SQL Prep: Build all DuckDB data` (runs `python data/bootstrap.py`).
+- Windows: DuckDB files can be locked; if you have a `data/duckdb/qNNN.duckdb` open in Cursor, bootstrap may skip that question until you detach it (rerun bootstrap after closing).
+
 ## Setup
 
 Python 3.9+:

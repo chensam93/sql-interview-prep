@@ -4,11 +4,12 @@ ATTACH 'data/duckdb/workspace_verify.duckdb' AS workspace_db;
 
 -- Quick sanity checks
 -- Switch questions by changing EXACTLY ONE line below:
--- Q001:
--- USE workspace_db.q001;
--- Q002:
--- USE workspace_db.q002;
-USE workspace_db.q002;
+-- Lower Q001:
+-- USE workspace_db.q001_lower;
+-- Core Q001:
+USE workspace_db.q001_core;
+-- Higher Q001:
+-- USE workspace_db.q001_higher;
 
 SELECT current_database(), current_schema();
 SHOW TABLES;

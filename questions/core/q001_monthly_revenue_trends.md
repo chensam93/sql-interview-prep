@@ -1,6 +1,6 @@
-# Q001 - Monthly Revenue Trends
+# Q001 (Core) - Monthly Revenue Trends
 
-**Level:** Analytics Engineer  
+**Level:** Core (mid + senior blend)  
 **Concepts tested:** aggregation, window functions, ranking
 
 ---
@@ -43,20 +43,15 @@ Helpful notes:
   - Example: if only Jan and Feb exist, Feb's rolling average uses Jan+Feb.
 
 ### Query 2
-For each month, return the **top revenue product** with:
+For each month, return the top revenue product with:
 - `order_month`
 - `product_id`
 - `product_revenue`
 
 If there is a tie, keep the product with the alphabetically smallest `product_id`.
 
-Helpful note:
-- This is usually done with a window rank (for example `row_number`) partitioned by month.
-
 ---
 
 ## Data
 
-Connect to: `data/duckdb/workspace_verify.duckdb` and run `USE workspace_db.q001;` (see `scratchpad.sql`).
-
-If you open `data/duckdb/q001.duckdb` directly instead, tables live in schema `main` — do not use `USE workspace_db.q001`. After adding or changing generators, run `python data/bootstrap.py` so the verify snapshot includes the `q001` schema.
+Connect to: `data/duckdb/workspace_verify.duckdb` and run `USE workspace_db.q001_core;` (see `scratchpad.sql`).

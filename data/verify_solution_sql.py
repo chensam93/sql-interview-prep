@@ -5,8 +5,8 @@ Default database is data/duckdb/workspace_verify.duckdb (bootstrap snapshot).
 Falls back to legacy paths if present.
 
 Examples:
-  python data/verify_solution_sql.py --sql solutions/q001_monthly_revenue_trends.sql
-  python data/verify_solution_sql.py --sql solutions/q001_monthly_revenue_trends.sql --schema q001
+  python data/verify_solution_sql.py --sql solutions/core/q001_monthly_revenue_trends.sql
+  python data/verify_solution_sql.py --sql solutions/core/q001_monthly_revenue_trends.sql --schema q001_core
 """
 
 from __future__ import annotations

@@ -6,8 +6,8 @@ From repo root:
   python data/bootstrap.py q001      # one question
   python data/bootstrap.py q001 ...  # selected questions
 
-Convention for new questions: add data/generators/generate_qNNN.py that writes
-data/duckdb/qNNN.duckdb
+Convention for new questions: add data/generators/generate_q*.py that writes
+data/duckdb/<schema_id>.duckdb
 (this repo’s pattern). Re-run this script after pulling new generators.
 """
 

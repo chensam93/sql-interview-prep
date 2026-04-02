@@ -1,12 +1,6 @@
 """
-Generate sample data for Q001: Monthly Revenue Trends.
-
-Run directly:
-    python data/generators/generate_q001.py
-Or build every question at once:
-    python data/bootstrap.py
-
-Creates: data/duckdb/q001.duckdb
+Generate sample data for Q001 (Core): Monthly Revenue Trends.
+Creates: data/duckdb/q001_core.duckdb
 """
 
 import duckdb
@@ -16,9 +10,9 @@ from pathlib import Path
 
 random.seed(7)
 
-DATABASE_PATH = Path(__file__).resolve().parent.parent / "duckdb" / "q001.duckdb"
-DATABASE_PATH.parent.mkdir(parents=True, exist_ok=True)
-connection = duckdb.connect(str(DATABASE_PATH))
+database_path = Path(__file__).resolve().parent.parent / "duckdb" / "q001_core.duckdb"
+database_path.parent.mkdir(parents=True, exist_ok=True)
+connection = duckdb.connect(str(database_path))
 
 connection.execute("drop table if exists orders")
 connection.execute("drop table if exists order_items")
@@ -81,14 +75,4 @@ connection.execute(
 )
 connection.executemany("insert into order_items values (?, ?, ?, ?)", order_items)
 
-order_total = connection.execute("select count(*) from orders").fetchone()[0]
-line_item_total = connection.execute("select count(*) from order_items").fetchone()[0]
-month_total = connection.execute(
-    "select count(distinct date_trunc('month', order_date)) from orders"
-).fetchone()[0]
-
-connection.close()
-print(f"Created {DATABASE_PATH}")
-print(f"  orders: {order_total}")
-print(f"  order_items: {line_item_total}")
-print(f"  months: {month_total}")
+print(f"Created {database_path}")

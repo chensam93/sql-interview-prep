@@ -20,7 +20,7 @@ This is very much **vibe-coded**—treat it as a practice scaffold/draft, not a 
 
 1. Pick a question from `questions/`
 2. Run `python data/bootstrap.py` (writes per-question DBs under `data/duckdb/` and refreshes `data/duckdb/workspace_verify.duckdb`)
-3. Query via **`data/duckdb/workspace_verify.duckdb`**: each question is a schema (`q001`, …). Use **`scratchpad.sql`** (shared template) — attach once, then switch with `USE workspace_db.q00N;` For private notes, use **`personal_scratch.sql`** (gitignored).
+3. Query via **`data/duckdb/workspace_verify.duckdb`**: each question is a schema (`q001_lower`, `q001_core`, `q001_higher`, …). Use **`scratchpad.sql`** (shared template) — attach once, then switch with `USE workspace_db.<schema_id>;` For private notes, use **`personal_scratch.sql`** (gitignored).
 4. Review `solutions/` when ready
 
 ## Config notes (requirements + editor)
@@ -39,7 +39,7 @@ pip install -r requirements.txt
 
 ## Data
 
-`*.duckdb` files are gitignored. One command runs every `data/generators/generate_qNNN.py` and merges question DBs into a single practice snapshot:
+`*.duckdb` files are gitignored. One command runs every `data/generators/generate_q*.py` and merges question DBs into a single practice snapshot:
 
 ```bash
 python data/bootstrap.py
@@ -49,26 +49,28 @@ python data/bootstrap.py
 
 | File | Role |
 |------|------|
-| `data/duckdb/q001.duckdb`, … | **Source** DB for each question (what generators build). Tables live in schema `main`. |
-| `data/duckdb/workspace_build.duckdb` | **Temporary** merge: copies each `qNNN` into its own schema (`q001`, …) then feeds the verify file. |
+| `data/duckdb/q001_core.duckdb`, `q001_lower.duckdb`, … | **Source** DB for each question (what generators build). Tables live in schema `main`. |
+| `data/duckdb/workspace_build.duckdb` | **Temporary** merge: copies each question DB into its own schema (`q001_core`, `q001_lower`, …) then feeds the verify file. |
 | `data/duckdb/workspace_verify.duckdb` | **What you query in practice** — one file, switch schema to change question. Safe to open while per-question files may be locked. |
 
 If a per-question file is open in Cursor, bootstrap may skip merging that question until you detach it. Bootstrap still looks for **legacy** `data/qNNN.duckdb` if the new path is missing (one-time migration).
 
-**Adding a question:** `questions/…`, `data/generators/generate_qNNN.py` → `data/duckdb/qNNN.duckdb`, `solutions/…`. Re-run bootstrap.
+**Adding a question:** add files under bucketed folders in `questions/` and `solutions/`, plus `data/generators/generate_q...py` that writes `data/duckdb/<schema_id>.duckdb`. Re-run bootstrap.
 
 **Build task:** **Terminal → Run Build Task** (`Ctrl+Shift+B`) runs `python data/bootstrap.py`.
 
 ### Validate solutions
 
 ```bash
-python data/verify_solution_sql.py --sql solutions/<question_solution>.sql --schema q00N
+python data/verify_solution_sql.py --sql solutions/<bucket>/<question_solution>.sql --schema <schema_id>
 ```
 
 Examples:
 
 ```bash
-python data/verify_solution_sql.py --sql solutions/q001_monthly_revenue_trends.sql --schema q001
+python data/verify_solution_sql.py --sql solutions/lower/q001_conversion_funnel_basics.sql --schema q001_lower
+python data/verify_solution_sql.py --sql solutions/core/q001_monthly_revenue_trends.sql --schema q001_core
+python data/verify_solution_sql.py --sql solutions/higher/q001_subscription_mrr_movements.sql --schema q001_higher
 ```
 
 ### Layout
@@ -79,12 +81,13 @@ python data/verify_solution_sql.py --sql solutions/q001_monthly_revenue_trends.s
 | `data/generators/` | Dataset scripts |
 | `data/duckdb/` | All `.duckdb` artifacts (per-question + workspace snapshots) |
 | `data/verify_solution_sql.py` | Non-interactive SQL check |
-| `progress/` | Personal progress tracking notes (public, sidecar) |
 
 ## Questions
 
-| # | Topic | Concepts tested |
-|---|-------|-----------------|
-| [Q001](questions/q001_monthly_revenue_trends.md) | Monthly Revenue Trends | aggregation, rolling average, ranking |
+| # | Difficulty bucket | Topic | Concepts tested |
+|---|-------------------|-------|-----------------|
+| [Q001](questions/lower/q001_conversion_funnel_basics.md) | lower | Conversion Funnel Basics | staged aggregation, distinct users, conversion rates |
+| [Q001](questions/core/q001_monthly_revenue_trends.md) | core (mid + senior blend) | Monthly Revenue Trends | aggregation, rolling average, ranking |
+| [Q001](questions/higher/q001_subscription_mrr_movements.md) | higher | Subscription MRR Movements | ctes, window functions, lifecycle classification |
 
 

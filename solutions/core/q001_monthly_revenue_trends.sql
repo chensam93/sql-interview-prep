@@ -1,7 +1,4 @@
--- Q001 Reference Solution: Monthly Revenue Trends
--- -----------------------------------------------------------------------------
--- Query 1: monthly revenue + three-month rolling average
--- -----------------------------------------------------------------------------
+-- Q001 (Core) Reference Solution: Monthly Revenue Trends
 
 with monthly_revenue as (
     select
@@ -31,10 +28,6 @@ from monthly_revenue_with_rolling_average
 order by monthly_revenue_with_rolling_average.order_month;
 
 
--- -----------------------------------------------------------------------------
--- Query 2: top revenue product per month (tie-break on product_id asc)
--- -----------------------------------------------------------------------------
-
 with product_monthly_revenue as (
     select
         date_trunc('month', orders.order_date)::date as order_month,
@@ -59,18 +52,11 @@ ranked_products as (
                 product_monthly_revenue.product_id asc
         ) as product_rank
     from product_monthly_revenue
-),
-top_product_by_month as (
-    select
-        ranked_products.order_month,
-        ranked_products.product_id,
-        ranked_products.product_revenue
-    from ranked_products
-    where ranked_products.product_rank = 1
 )
 select
-    top_product_by_month.order_month,
-    top_product_by_month.product_id,
-    top_product_by_month.product_revenue
-from top_product_by_month
-order by top_product_by_month.order_month;
+    ranked_products.order_month,
+    ranked_products.product_id,
+    ranked_products.product_revenue
+from ranked_products
+where ranked_products.product_rank = 1
+order by ranked_products.order_month;

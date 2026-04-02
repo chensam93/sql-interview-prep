@@ -1,6 +1,7 @@
 # SQL Interview Prep
 
 A live, queryable SQL practice environment for senior analytics engineering interviews (personal project).
+I wanted to practice my SQL for analytic engineer technical interviews but I didn't want to rely on Leetcode or similar websites. I just wanted to use Cursor and adjust the questions/parameters myself.
 
 ## Practice-Only Disclaimer
 This repo is my SQL interview practice scaffolding. It is not intended as a public package, production system, or reference implementation for others to consume.

@@ -1,6 +1,6 @@
-# Q002 - Monthly Revenue Trends
+# Q001 - Monthly Revenue Trends
 
-**Level:** Senior Analytics Engineer  
+**Level:** Analytics Engineer  
 **Concepts tested:** aggregation, window functions, ranking
 
 ---
@@ -57,6 +57,6 @@ Helpful note:
 
 ## Data
 
-Connect to: `data/duckdb/workspace_verify.duckdb` and run `USE workspace_db.q002;` (see `scratchpad.sql`).
+Connect to: `data/duckdb/workspace_verify.duckdb` and run `USE workspace_db.q001;` (see `scratchpad.sql`).
 
-If you open `data/duckdb/q002.duckdb` directly instead, tables live in schema `main` — do not use `USE workspace_db.q002`. After adding or changing generators, run `python data/bootstrap.py` so the verify snapshot includes the `q002` schema.
+If you open `data/duckdb/q001.duckdb` directly instead, tables live in schema `main` — do not use `USE workspace_db.q001`. After adding or changing generators, run `python data/bootstrap.py` so the verify snapshot includes the `q001` schema.

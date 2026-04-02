@@ -1,17 +1,17 @@
--- Q002 Reference Solution: Monthly Revenue Trends
+-- Q001 Reference Solution: Monthly Revenue Trends
 -- -----------------------------------------------------------------------------
 -- Query 1: monthly revenue + three-month rolling average
 -- -----------------------------------------------------------------------------
 
 with monthly_revenue as (
     select
-        date_trunc('month', orders.order_date) as order_month,
+        date_trunc('month', orders.order_date)::date as order_month,
         sum(order_items.quantity * order_items.unit_price) as monthly_revenue
     from orders
     inner join order_items
         on order_items.order_id = orders.order_id
     group by
-        date_trunc('month', orders.order_date)
+        date_trunc('month', orders.order_date)::date
 ),
 monthly_revenue_with_rolling_average as (
     select
@@ -37,14 +37,14 @@ order by monthly_revenue_with_rolling_average.order_month;
 
 with product_monthly_revenue as (
     select
-        date_trunc('month', orders.order_date) as order_month,
+        date_trunc('month', orders.order_date)::date as order_month,
         order_items.product_id,
         sum(order_items.quantity * order_items.unit_price) as product_revenue
     from orders
     inner join order_items
         on order_items.order_id = orders.order_id
     group by
-        date_trunc('month', orders.order_date),
+        date_trunc('month', orders.order_date)::date,
         order_items.product_id
 ),
 ranked_products as (

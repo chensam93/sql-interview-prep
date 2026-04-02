@@ -4,7 +4,7 @@ Build DuckDB files for every question that has a generator.
 From repo root:
   python data/bootstrap.py           # all questions
   python data/bootstrap.py q001      # one question
-  python data/bootstrap.py q001 q002 # several
+  python data/bootstrap.py q001 ...  # selected questions
 
 Convention for new questions: add data/generators/generate_qNNN.py that writes
 data/duckdb/qNNN.duckdb

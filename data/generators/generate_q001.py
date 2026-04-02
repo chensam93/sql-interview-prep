@@ -1,5 +1,5 @@
 """
-Generate sample data for Q001: Cohort Retention Analysis.
+Generate sample data for Q001: Monthly Revenue Trends.
 
 Run directly:
     python data/generators/generate_q001.py
@@ -14,106 +14,81 @@ import random
 from datetime import date, timedelta
 from pathlib import Path
 
-random.seed(42)
+random.seed(7)
 
-DB_PATH = Path(__file__).resolve().parent.parent / "duckdb" / "q001.duckdb"
-DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-conn = duckdb.connect(str(DB_PATH))
+DATABASE_PATH = Path(__file__).resolve().parent.parent / "duckdb" / "q001.duckdb"
+DATABASE_PATH.parent.mkdir(parents=True, exist_ok=True)
+connection = duckdb.connect(str(DATABASE_PATH))
 
-START_DATE = date(2024, 10, 1)
-END_DATE   = date(2024, 12, 31)
-N_USERS    = 1500
+connection.execute("drop table if exists orders")
+connection.execute("drop table if exists order_items")
 
-CHANNELS   = ["organic", "paid_social", "referral"]
-PLAN_TYPES = ["free", "premium"]
-CHANNEL_WEIGHTS  = [0.5, 0.3, 0.2]
-PLAN_WEIGHTS     = [0.7, 0.3]
-ACTIVITY_TYPES   = ["login", "feature_use", "purchase"]
-ACTIVITY_WEIGHTS = [0.5, 0.35, 0.15]
+start_date = date(2024, 1, 1)
+end_date = date(2024, 6, 30)
+channel_values = ["organic", "paid_search", "email"]
+channel_weights = [0.45, 0.35, 0.20]
 
-def rand_date(start, end):
-    return start + timedelta(days=random.randint(0, (end - start).days))
+product_values = ["prod_a", "prod_b", "prod_c", "prod_d", "prod_e"]
+price_by_product = {
+    "prod_a": 19.0,
+    "prod_b": 35.0,
+    "prod_c": 49.0,
+    "prod_d": 79.0,
+    "prod_e": 129.0,
+}
 
-# ── users ─────────────────────────────────────────────────────────────────────
-users = []
-for i in range(N_USERS):
-    users.append({
-        "user_id":     f"user_{i:04d}",
-        "signup_date": rand_date(START_DATE, END_DATE - timedelta(days=35)),
-        "channel":     random.choices(CHANNELS, CHANNEL_WEIGHTS)[0],
-        "plan_type":   random.choices(PLAN_TYPES, PLAN_WEIGHTS)[0],
-    })
+orders = []
+order_items = []
+order_count = 600
 
-# ── activity ──────────────────────────────────────────────────────────────────
-activity = []
-for u in users:
-    signup = u["signup_date"]
-    is_premium = u["plan_type"] == "premium"
+for order_number in range(order_count):
+    order_id = f"order_{order_number:05d}"
+    customer_id = f"cust_{random.randint(1, 220):04d}"
+    day_offset = random.randint(0, (end_date - start_date).days)
+    order_date = start_date + timedelta(days=day_offset)
+    channel = random.choices(channel_values, channel_weights)[0]
 
-    # base retention probabilities
-    p_d1  = 0.55 if is_premium else 0.35
-    p_d7  = 0.40 if is_premium else 0.22
-    p_d30 = 0.25 if is_premium else 0.12
+    orders.append((order_id, customer_id, order_date, channel))
 
-    # guarantee milestone-day activity for retained users
-    for offset, prob in [(1, p_d1), (7, p_d7), (30, p_d30)]:
-        activity_date = signup + timedelta(days=offset)
-        if activity_date <= END_DATE and random.random() < prob:
-            activity.append({
-                "user_id":       u["user_id"],
-                "activity_date": activity_date,
-                "activity_type": random.choices(ACTIVITY_TYPES, ACTIVITY_WEIGHTS)[0],
-            })
+    line_item_count = random.randint(1, 3)
+    selected_products = random.sample(product_values, k=line_item_count)
+    for product_id in selected_products:
+        quantity = random.randint(1, 4)
+        unit_price = price_by_product[product_id] + random.choice([0.0, 0.0, 2.0, -1.0])
+        order_items.append((order_id, product_id, quantity, unit_price))
 
-    # random background activity (0–8 sessions) over first 45 days
-    n_sessions = random.randint(0, 8)
-    max_offset = min(45, (END_DATE - signup).days)
-    for _ in range(n_sessions):
-        offset = random.randint(0, max_offset)
-        activity.append({
-            "user_id":       u["user_id"],
-            "activity_date": signup + timedelta(days=offset),
-            "activity_type": random.choices(ACTIVITY_TYPES, ACTIVITY_WEIGHTS)[0],
-        })
-
-# ── write to duckdb ───────────────────────────────────────────────────────────
-conn.execute("drop table if exists users")
-conn.execute("drop table if exists activity")
-
-conn.execute("""
-    create table users (
-        user_id      varchar,
-        signup_date  date,
-        channel      varchar,
-        plan_type    varchar
+connection.execute(
+    """
+    create table orders (
+        order_id varchar,
+        customer_id varchar,
+        order_date date,
+        channel varchar
     )
-""")
-conn.executemany(
-    "insert into users values (?, ?, ?, ?)",
-    [(u["user_id"], u["signup_date"], u["channel"], u["plan_type"]) for u in users],
+    """
 )
+connection.executemany("insert into orders values (?, ?, ?, ?)", orders)
 
-conn.execute("""
-    create table activity (
-        user_id       varchar,
-        activity_date date,
-        activity_type varchar
+connection.execute(
+    """
+    create table order_items (
+        order_id varchar,
+        product_id varchar,
+        quantity integer,
+        unit_price numeric
     )
-""")
-conn.executemany(
-    "insert into activity values (?, ?, ?)",
-    [(a["user_id"], a["activity_date"], a["activity_type"]) for a in activity],
+    """
 )
+connection.executemany("insert into order_items values (?, ?, ?, ?)", order_items)
 
-# quick sanity
-n_users    = conn.execute("select count(*) from users").fetchone()[0]
-n_activity = conn.execute("select count(*) from activity").fetchone()[0]
-n_cohorts  = conn.execute(
-    "select count(distinct date_trunc('week', signup_date)) from users"
+order_total = connection.execute("select count(*) from orders").fetchone()[0]
+line_item_total = connection.execute("select count(*) from order_items").fetchone()[0]
+month_total = connection.execute(
+    "select count(distinct date_trunc('month', order_date)) from orders"
 ).fetchone()[0]
 
-conn.close()
-print(f"Created {DB_PATH}")
-print(f"  users:    {n_users}")
-print(f"  activity: {n_activity}")
-print(f"  cohort weeks: {n_cohorts}")
+connection.close()
+print(f"Created {DATABASE_PATH}")
+print(f"  orders: {order_total}")
+print(f"  order_items: {line_item_total}")
+print(f"  months: {month_total}")

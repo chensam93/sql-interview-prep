@@ -14,7 +14,7 @@ Vast majority of code was produced with **Cursor’s Agent**. My best-effort est
 - Repo wiring & “how to run” glue (VS Code/Cursor config, `data/bootstrap.py`, per-question generators, verify script, scratchpad wiring): ~70–90% AI-assisted.
 - Interview content (the question markdown prompts + question-specific solution SQL in `solutions/`): ~20–40% AI-assisted (mostly for SQL shape/debugging), with the core modeling/intent mostly coming from me.
 
-Treat generated code as a draft and review it.
+This is very much **vibe-coded**—treat it as a practice scaffold/draft, not a polished library. Review any generated code before relying on it.
 
 ## How it works
 

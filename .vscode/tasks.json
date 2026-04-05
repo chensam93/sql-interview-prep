@@ -4,7 +4,10 @@
     {
       "label": "SQL Prep: Build all DuckDB data",
       "type": "shell",
-      "command": "python data/bootstrap.py",
+      "command": "${workspaceFolder}/.venv/bin/python data/bootstrap.py",
+      "windows": {
+        "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe data/bootstrap.py"
+      },
       "options": {
         "cwd": "${workspaceFolder}"
       },

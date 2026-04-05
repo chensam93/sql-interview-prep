@@ -1,3 +1,5 @@
+.venv/
+
 personal_scratch.sql
 *.duckdb
 *.duckdb.wal

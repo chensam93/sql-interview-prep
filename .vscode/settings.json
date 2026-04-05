@@ -1,4 +1,5 @@
 {
+    "python.terminal.activateEnvironment": true,
     "workbench.editorAssociations": {
         "*.parquet": "duckdb.dataFileViewer",
         "*.csv": "duckdb.dataFileViewer",

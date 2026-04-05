@@ -161,12 +161,48 @@ def _build_workspace_db(data_dir: Path, question_ids: list[str]) -> list[str]:
     return skipped
 
 
+def _file_in_use_error(exc: OSError) -> bool:
+    winerror = getattr(exc, "winerror", None)
+    if winerror == 32:
+        return True
+    errno = getattr(exc, "errno", None)
+    if errno in (11, 13, 16):  # EAGAIN, EACCES, EBUSY (platform-dependent)
+        return True
+    lowered = str(exc).lower()
+    return "being used by another process" in lowered or "text file busy" in lowered
+
+
 def _refresh_verification_db(data_dir: Path) -> None:
     duckdb_dir = _duckdb_dir(data_dir)
     workspace_path = duckdb_dir / "workspace_build.duckdb"
     verification_path = duckdb_dir / "workspace_verify.duckdb"
+    if not workspace_path.exists():
+        return
+
     if verification_path.exists():
-        verification_path.unlink()
+        try:
+            verification_path.unlink()
+        except OSError as exc:
+            if not _file_in_use_error(exc):
+                raise
+            pending = duckdb_dir / "workspace_verify_pending.duckdb"
+            try:
+                if pending.exists():
+                    pending.unlink()
+            except OSError:
+                pass
+            shutil.copy2(workspace_path, pending)
+            print(
+                "Could not replace data/duckdb/workspace_verify.duckdb because another program "
+                "still has it open (often the DuckDB view in the editor). "
+                f"Wrote the fresh snapshot as data/duckdb/{pending.name} instead. "
+                "Close that database in the UI (or reload the window), delete or rename the old "
+                "workspace_verify.duckdb if needed, then rerun bootstrap—or rename the pending "
+                "file to workspace_verify.duckdb when nothing is using the old file.",
+                file=sys.stderr,
+            )
+            return
+
     shutil.copy2(workspace_path, verification_path)
 
 

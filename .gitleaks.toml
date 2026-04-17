@@ -1,0 +1,4 @@
+title = "sql-interview-prep secret scanning config"
+
+[extend]
+useDefault = true

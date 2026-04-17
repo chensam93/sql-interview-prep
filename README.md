@@ -37,6 +37,20 @@ Python 3.9+:
 pip install -r requirements.txt
 ```
 
+## Secret scanning
+
+- local pre-commit hook lives at `.githooks/pre-commit`
+- CI scan runs in `.github/workflows/secret-scan.yml`
+- gitleaks config lives at `.gitleaks.toml`
+
+One-time local setup in this repo:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+Optional (better local detection): install `gitleaks` so the hook runs `gitleaks protect --staged` instead of fallback regex scanning.
+
 ## Data
 
 `*.duckdb` files are gitignored. One command runs every `data/generators/generate_q*.py` and merges question DBs into a single practice snapshot:

@@ -20,7 +20,7 @@ This is very much **vibe-coded**—treat it as a practice scaffold/draft, not a 
 
 1. Pick a question from `questions/`
 2. Run `python data/bootstrap.py` (writes per-question DBs under `data/duckdb/` and refreshes `data/duckdb/workspace_verify.duckdb`)
-3. Query via **`data/duckdb/workspace_verify.duckdb`**: each question is a schema (`q001_lower`, `q001_core`, `q001_higher`, …). Use **`scratchpad.sql`** (shared template) — attach once, then switch with `USE workspace_db.<schema_id>;` For private notes, use **`personal_scratch.sql`** (gitignored).
+3. Query via **`data/duckdb/workspace_build.duckdb`** in `scratchpad.sql`: each question is a schema (`q001_lower`, `q001_core`, `q001_higher`, …). Attach once, then switch with `USE workspace_db.<schema_id>;` For private notes, use **`personal_scratch.sql`** (gitignored).
 4. Review `solutions/` when ready
 
 ## Config notes (requirements + editor)
@@ -64,8 +64,16 @@ python data/bootstrap.py
 | File | Role |
 |------|------|
 | `data/duckdb/q001_core.duckdb`, `q001_lower.duckdb`, … | **Source** DB for each question (what generators build). Tables live in schema `main`. |
-| `data/duckdb/workspace_build.duckdb` | **Temporary** merge: copies each question DB into its own schema (`q001_core`, `q001_lower`, …) then feeds the verify file. |
-| `data/duckdb/workspace_verify.duckdb` | **What you query in practice** — one file, switch schema to change question. Safe to open while per-question files may be locked. |
+| `data/duckdb/workspace_build.duckdb` | **What scratchpad queries in practice** — merged schemas (`q001_core`, `q001_lower`, …) refreshed directly by bootstrap. |
+| `data/duckdb/workspace_verify.duckdb` | Read-only snapshot copy for editor integrations that expect a stable file path. |
+
+If a tab already attached `workspace_db` to an older file path, run this reset in that tab:
+
+```sql
+use memory.main;
+detach workspace_db;
+attach 'data/duckdb/workspace_build.duckdb' as workspace_db;
+```
 
 If a per-question file is open in Cursor, bootstrap may skip merging that question until you detach it. Bootstrap still looks for **legacy** `data/qNNN.duckdb` if the new path is missing (one-time migration).
 
@@ -83,8 +91,10 @@ Examples:
 
 ```bash
 python data/verify_solution_sql.py --sql solutions/lower/q001_conversion_funnel_basics.sql --schema q001_lower
+python data/verify_solution_sql.py --sql solutions/lower/q002_resolution_rate_by_channel.sql --schema q002_lower
 python data/verify_solution_sql.py --sql solutions/core/q001_monthly_revenue_trends.sql --schema q001_core
 python data/verify_solution_sql.py --sql solutions/core/q002_channel_customer_mix.sql --schema q002_core
+python data/verify_solution_sql.py --sql solutions/core/q003_monthly_net_after_returns.sql --schema q003_core
 python data/verify_solution_sql.py --sql solutions/higher/q001_subscription_mrr_movements.sql --schema q001_higher
 ```
 
@@ -101,9 +111,11 @@ python data/verify_solution_sql.py --sql solutions/higher/q001_subscription_mrr_
 
 | # | Difficulty bucket | Topic | Concepts tested |
 |---|-------------------|-------|-----------------|
-| [Q001](questions/lower/q001_conversion_funnel_basics.md) | lower | Conversion Funnel Basics | staged aggregation, distinct users, conversion rates |
+| [Q001](questions/lower/q001_conversion_funnel_basics.md) | lower | Weekly Ticket Resolution Basics | left join filtering, count distinct, date bucketing, case statements |
+| [Q002](questions/lower/q002_resolution_rate_by_channel.md) | lower | 7-Day Resolution Rate by Channel | left join, case statements, grouped aggregation |
 | [Q001](questions/core/q001_monthly_revenue_trends.md) | core (mid + senior blend) | Monthly Revenue Trends | aggregation, rolling average, ranking |
 | [Q002](questions/core/q002_channel_customer_mix.md) | core (mid + senior blend) | Channel Revenue Mix (New vs Returning) | ctes, window functions, conditional aggregation, ranking |
+| [Q003](questions/core/q003_monthly_net_after_returns.md) | core (mid + senior blend) | Monthly gross vs refunds | ctes, joins, aggregation, coalesce, null-safe ratios |
 | [Q001](questions/higher/q001_subscription_mrr_movements.md) | higher | Subscription MRR Movements | ctes, window functions, lifecycle classification |
 
 

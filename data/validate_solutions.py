@@ -74,37 +74,37 @@ def _run_invariant_checks() -> dict[str, str]:
     try:
         violations = lower_conn.execute(
             """
-            with signups_with_events as (
+            with ticket_resolution_flags as (
                 select
-                    signups.user_id,
-                    date_trunc('week', signups.signup_date)::date as signup_week,
+                    tickets.ticket_id,
+                    date_trunc('week', tickets.opened_date)::date as opened_week,
                     max(
-                        case when events.event_name = 'first_purchase'
-                            and events.event_date <= signups.signup_date + interval '30 day'
+                        case when ticket_updates.update_type = 'resolved'
+                            and ticket_updates.update_date >= tickets.opened_date
+                            and ticket_updates.update_date <= tickets.opened_date + interval '3 day'
                         then 1 else 0 end
-                    ) as has_purchase
-                from signups
-                left join events
-                    on events.user_id = signups.user_id
-                   and events.event_date >= signups.signup_date
+                    ) as has_resolution_3d
+                from tickets
+                left join ticket_updates
+                    on ticket_updates.ticket_id = tickets.ticket_id
                 group by
-                    signups.user_id,
-                    date_trunc('week', signups.signup_date)::date
+                    tickets.ticket_id,
+                    date_trunc('week', tickets.opened_date)::date
             ),
             weekly as (
                 select
-                    signup_week,
-                    count(*) as signed_up_users,
-                    sum(has_purchase) as purchased_users
-                from signups_with_events
-                group by signup_week
+                    opened_week,
+                    count(*) as opened_tickets,
+                    sum(has_resolution_3d) as resolved_tickets_3d
+                from ticket_resolution_flags
+                group by opened_week
             )
             select count(*)
             from weekly
-            where purchased_users > signed_up_users
+            where resolved_tickets_3d > opened_tickets
             """
         ).fetchone()[0]
-        checks["lower"] = f"Weeks with purchased_users > signed_up_users: {violations}"
+        checks["lower"] = f"Weeks with resolved_tickets_3d > opened_tickets: {violations}"
     finally:
         lower_conn.close()
 
@@ -169,6 +169,11 @@ def main() -> int:
             "sql": REPO_ROOT / "solutions" / "lower" / "q001_conversion_funnel_basics.sql",
         },
         {
+            "name": "lower/q002_resolution_rate_by_channel",
+            "database": REPO_ROOT / "data" / "duckdb" / "q002_lower.duckdb",
+            "sql": REPO_ROOT / "solutions" / "lower" / "q002_resolution_rate_by_channel.sql",
+        },
+        {
             "name": "core/q001_monthly_revenue_trends",
             "database": REPO_ROOT / "data" / "duckdb" / "q001_core.duckdb",
             "sql": REPO_ROOT / "solutions" / "core" / "q001_monthly_revenue_trends.sql",
@@ -177,6 +182,11 @@ def main() -> int:
             "name": "core/q002_channel_customer_mix",
             "database": REPO_ROOT / "data" / "duckdb" / "q002_core.duckdb",
             "sql": REPO_ROOT / "solutions" / "core" / "q002_channel_customer_mix.sql",
+        },
+        {
+            "name": "core/q003_monthly_net_after_returns",
+            "database": REPO_ROOT / "data" / "duckdb" / "q003_core.duckdb",
+            "sql": REPO_ROOT / "solutions" / "core" / "q003_monthly_net_after_returns.sql",
         },
         {
             "name": "higher/q001_subscription_mrr_movements",
@@ -190,7 +200,7 @@ def main() -> int:
         "",
         f"- Generated at: {datetime.now(timezone.utc).isoformat()}",
         "- Scope: execute each reference solution statement against its bucket-specific DuckDB file.",
-        "- Assumption (lower): milestone events counted once per user using `max(case ...)` flags.",
+        "- Assumption (lower): ticket resolution counted once per ticket using `max(case ...)` flags.",
         "- Assumption (core): rolling average uses available history for early months (fewer than 3 rows).",
         "- Assumption (core q002): prior-month channel revenue defaults to `0` when missing for MoM delta.",
         "- Assumption (higher): missing prior month mrr is treated as `0` via `lag(..., default 0)` logic.",

@@ -1,47 +1,51 @@
-# Q001 (Lower) - Conversion Funnel Basics
+# Q001 (Lower) - Weekly Ticket Resolution Basics
 
 **Level:** Lower (entry to early-career analytics engineering)  
-**Concepts tested:** staged aggregation, distinct users, conversion rates
+**Concepts tested:** left join filtering, count distinct, date bucketing, case statements, basic percentages
 
 ---
 
 ## Scenario
 
-You are helping growth review signup funnel performance by signup week.
+You are helping support operations review weekly ticket resolution performance.
 
 You have two tables:
 
-### `signups`
+### `tickets`
 | column | type | description |
 |--------|------|-------------|
-| `user_id` | varchar | unique user id |
-| `signup_date` | date | signup date |
-| `acquisition_channel` | varchar | `organic`, `paid_search`, `referral`, `social` |
+| `ticket_id` | varchar | unique ticket identifier |
+| `opened_date` | date | when the ticket was opened |
+| `priority` | varchar | `low`, `medium`, `high` |
+| `source_channel` | varchar | `email`, `chat`, `phone` |
 
-### `events`
+### `ticket_updates`
 | column | type | description |
 |--------|------|-------------|
-| `user_id` | varchar | foreign key to signups |
-| `event_date` | date | date of event |
-| `event_name` | varchar | `signup_complete`, `profile_complete`, `first_purchase` |
+| `ticket_id` | varchar | foreign key to tickets |
+| `update_date` | date | date of update |
+| `update_type` | varchar | `comment`, `resolved`, `reopened` |
 
 ---
 
-## Questions
+## Question
 
-### Query 1
-Return one row per signup week with:
-- `signup_week`
-- `signed_up_users`
-- `profile_completed_users` (within 14 days of signup)
-- `purchased_users` (within 30 days of signup)
-- `profile_completion_rate_pct`
-- `purchase_rate_pct`
+Return one row per `opened_week` and `priority` with:
 
-### Query 2
-For each signup week, show which `acquisition_channel` had the most purchasers (same 30-day rule).
+- `opened_week` (week of `opened_date`)
+- `priority`
+- `opened_tickets` (distinct tickets opened in that week/priority)
+- `resolved_tickets_3d` (distinct tickets with at least one `resolved` update from opened date through opened date + 3 days)
+- `unresolved_tickets_3d` (`opened_tickets - resolved_tickets_3d`)
+- `resolution_rate_pct_3d` (`100 * resolved_tickets_3d / opened_tickets`, rounded to one decimal)
+- `resolution_band`:
+  - `strong` when rate >= 70
+  - `ok` when rate >= 40 and < 70
+  - `weak` otherwise
 
-If there is a tie, keep the alphabetically smallest `acquisition_channel`.
+Notes:
+- Keep tickets even when they have no updates.
+- A ticket should only be counted once in `resolved_tickets_3d`.
 
 ---
 

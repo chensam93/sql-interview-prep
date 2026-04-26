@@ -1,6 +1,11 @@
 -- Session bootstrap (run once in a fresh SQL tab/session).
--- This makes scratchpad self-contained even if DuckDB Explorer is on a different DB.
-ATTACH 'data/duckdb/workspace_verify.duckdb' AS workspace_db;
+-- We attach workspace_build because it is refreshed directly by bootstrap.
+attach if not exists 'data/duckdb/workspace_build.duckdb' as workspace_db;
+
+-- If this tab already attached workspace_db to an older file, run this reset block:
+-- use memory.main;
+-- detach workspace_db;
+-- attach 'data/duckdb/workspace_build.duckdb' as workspace_db;
 
 -- Quick sanity checks
 -- You can only set one default schema per session (USE). To see every question
@@ -14,7 +19,7 @@ ATTACH 'data/duckdb/workspace_verify.duckdb' AS workspace_db;
 --
 -- Switch question: edit the single USE line (or skip USE and qualify tables as
 -- workspace_db.<schema>.<table>).
-USE workspace_db.q002_core;
+USE workspace_db.q001_lower;
 
 SELECT current_database(), current_schema();
 SHOW TABLES;

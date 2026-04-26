@@ -1,106 +1,59 @@
--- Q001 (Lower) Reference Solution: Conversion Funnel Basics
+-- Q001 (Lower) Reference Solution: Weekly Ticket Resolution Basics
 
-with signups_with_events as (
+with ticket_resolution_flags as (
     select
-        signups.user_id,
-        signups.signup_date,
-        date_trunc('week', signups.signup_date)::date as signup_week,
-        signups.acquisition_channel,
+        tickets.ticket_id,
+        date_trunc('week', tickets.opened_date)::date as opened_week,
+        tickets.priority,
         max(
             case
-                when events.event_name = 'profile_complete'
-                    and events.event_date <= signups.signup_date + interval '14 day'
+                when ticket_updates.update_type = 'resolved'
+                    and ticket_updates.update_date >= tickets.opened_date
+                    and ticket_updates.update_date <= tickets.opened_date + interval '3 day'
                 then 1
                 else 0
             end
-        ) as has_profile_complete,
-        max(
-            case
-                when events.event_name = 'first_purchase'
-                    and events.event_date <= signups.signup_date + interval '30 day'
-                then 1
-                else 0
-            end
-        ) as has_purchase
-    from signups
-    left join events
-        on events.user_id = signups.user_id
-       and events.event_date >= signups.signup_date
+        ) as has_resolution_3d
+    from tickets
+    left join ticket_updates
+        on ticket_updates.ticket_id = tickets.ticket_id
     group by
-        signups.user_id,
-        signups.signup_date,
-        date_trunc('week', signups.signup_date)::date,
-        signups.acquisition_channel
+        tickets.ticket_id,
+        date_trunc('week', tickets.opened_date)::date,
+        tickets.priority
 ),
-weekly_funnel as (
+weekly_priority_rollup as (
     select
-        signup_week,
-        count(*) as signed_up_users,
-        sum(has_profile_complete) as profile_completed_users,
-        sum(has_purchase) as purchased_users
-    from signups_with_events
-    group by signup_week
+        ticket_resolution_flags.opened_week,
+        ticket_resolution_flags.priority,
+        count(*) as opened_tickets,
+        sum(ticket_resolution_flags.has_resolution_3d) as resolved_tickets_3d
+    from ticket_resolution_flags
+    group by
+        ticket_resolution_flags.opened_week,
+        ticket_resolution_flags.priority
 )
 select
-    weekly_funnel.signup_week,
-    weekly_funnel.signed_up_users,
-    weekly_funnel.profile_completed_users,
-    weekly_funnel.purchased_users,
-    round(100.0 * weekly_funnel.profile_completed_users / weekly_funnel.signed_up_users, 1) as profile_completion_rate_pct,
-    round(100.0 * weekly_funnel.purchased_users / weekly_funnel.signed_up_users, 1) as purchase_rate_pct
-from weekly_funnel
-order by weekly_funnel.signup_week;
-
-
-with signups_with_events as (
-    select
-        signups.user_id,
-        date_trunc('week', signups.signup_date)::date as signup_week,
-        signups.acquisition_channel,
-        max(
-            case
-                when events.event_name = 'first_purchase'
-                    and events.event_date <= signups.signup_date + interval '30 day'
-                then 1
-                else 0
-            end
-        ) as has_purchase
-    from signups
-    left join events
-        on events.user_id = signups.user_id
-       and events.event_date >= signups.signup_date
-    group by
-        signups.user_id,
-        date_trunc('week', signups.signup_date)::date,
-        signups.acquisition_channel
-),
-channel_purchases as (
-    select
-        signup_week,
-        acquisition_channel,
-        sum(has_purchase) as purchased_users
-    from signups_with_events
-    group by
-        signup_week,
-        acquisition_channel
-),
-ranked_channels as (
-    select
-        channel_purchases.signup_week,
-        channel_purchases.acquisition_channel,
-        channel_purchases.purchased_users,
-        row_number() over (
-            partition by channel_purchases.signup_week
-            order by
-                channel_purchases.purchased_users desc,
-                channel_purchases.acquisition_channel asc
-        ) as channel_rank
-    from channel_purchases
-)
-select
-    ranked_channels.signup_week,
-    ranked_channels.acquisition_channel,
-    ranked_channels.purchased_users
-from ranked_channels
-where ranked_channels.channel_rank = 1
-order by ranked_channels.signup_week;
+    weekly_priority_rollup.opened_week,
+    weekly_priority_rollup.priority,
+    weekly_priority_rollup.opened_tickets,
+    weekly_priority_rollup.resolved_tickets_3d,
+    weekly_priority_rollup.opened_tickets - weekly_priority_rollup.resolved_tickets_3d as unresolved_tickets_3d,
+    round(
+        100.0 * weekly_priority_rollup.resolved_tickets_3d
+            / weekly_priority_rollup.opened_tickets,
+        1
+    ) as resolution_rate_pct_3d,
+    case
+        when 100.0 * weekly_priority_rollup.resolved_tickets_3d
+            / weekly_priority_rollup.opened_tickets >= 70
+        then 'strong'
+        when 100.0 * weekly_priority_rollup.resolved_tickets_3d
+            / weekly_priority_rollup.opened_tickets >= 40
+        then 'ok'
+        else 'weak'
+    end as resolution_band
+from weekly_priority_rollup
+order by
+    weekly_priority_rollup.opened_week,
+    weekly_priority_rollup.priority;

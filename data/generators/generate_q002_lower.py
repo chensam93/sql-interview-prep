@@ -1,6 +1,6 @@
 """
-Generate sample data for Q001 (Lower): Weekly Ticket Resolution Basics.
-Creates: data/duckdb/q001_lower.duckdb
+Generate sample data for Q002 (Lower): 7-Day Resolution Rate by Channel.
+Creates: data/duckdb/q002_lower.duckdb
 """
 
 import random
@@ -9,30 +9,28 @@ from pathlib import Path
 
 import duckdb
 
-random.seed(24)
+random.seed(31)
 
-database_path = Path(__file__).resolve().parent.parent / "duckdb" / "q001_lower.duckdb"
+database_path = Path(__file__).resolve().parent.parent / "duckdb" / "q002_lower.duckdb"
 database_path.parent.mkdir(parents=True, exist_ok=True)
 connection = duckdb.connect(str(database_path))
 
 connection.execute("drop table if exists tickets")
 connection.execute("drop table if exists ticket_updates")
 
-start_date = date(2024, 2, 1)
-end_date = date(2024, 4, 30)
+start_date = date(2024, 3, 1)
+end_date = date(2024, 5, 31)
 
 priorities = ["low", "medium", "high"]
 priority_weights = [0.45, 0.35, 0.20]
 
 source_channels = ["email", "chat", "phone"]
-source_weights = [0.5, 0.3, 0.2]
+source_weights = [0.52, 0.30, 0.18]
 
 tickets = []
 ticket_updates = []
 
-ticket_count = 840
-
-for ticket_number in range(ticket_count):
+for ticket_number in range(720):
     ticket_id = f"ticket_{ticket_number:05d}"
     opened_date = start_date + timedelta(days=random.randint(0, (end_date - start_date).days))
     priority = random.choices(priorities, priority_weights)[0]
@@ -40,28 +38,19 @@ for ticket_number in range(ticket_count):
 
     tickets.append((ticket_id, opened_date, priority, source_channel))
 
-    comment_count = random.randint(0, 2)
-    for _ in range(comment_count):
-        comment_date = opened_date + timedelta(days=random.randint(0, 6))
+    if random.random() < 0.75:
+        comment_date = opened_date + timedelta(days=random.randint(0, 4))
         ticket_updates.append((ticket_id, comment_date, "comment"))
 
-    if priority == "high":
-        resolution_probability = 0.76
-    elif priority == "medium":
-        resolution_probability = 0.58
-    else:
-        resolution_probability = 0.42
+    resolved_probability_by_channel = {
+        "email": 0.62,
+        "chat": 0.74,
+        "phone": 0.56,
+    }
 
-    if random.random() < resolution_probability:
-        resolution_date = opened_date + timedelta(days=random.randint(0, 6))
+    if random.random() < resolved_probability_by_channel[source_channel]:
+        resolution_date = opened_date + timedelta(days=random.randint(0, 10))
         ticket_updates.append((ticket_id, resolution_date, "resolved"))
-
-        if random.random() < 0.12:
-            reopened_date = resolution_date + timedelta(days=random.randint(1, 5))
-            ticket_updates.append((ticket_id, reopened_date, "reopened"))
-    elif random.random() < 0.18:
-        reopened_date = opened_date + timedelta(days=random.randint(2, 8))
-        ticket_updates.append((ticket_id, reopened_date, "reopened"))
 
 connection.execute(
     """

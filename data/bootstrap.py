@@ -85,20 +85,65 @@ def _sync_duckdb_workspace_settings(root_dir: Path, question_ids: list[str]) -> 
         f.write("\n")
 
 
+def _sync_scratchpad_workspace_path(root_dir: Path, workspace_path: Path) -> None:
+    scratchpad_path = root_dir / "scratchpad.sql"
+    if not scratchpad_path.exists():
+        return
+
+    lines = scratchpad_path.read_text(encoding="utf-8").splitlines()
+    target_line = f"attach '{workspace_path.as_posix()}' as workspace_db;"
+    updated_lines: list[str] = []
+    replaced = False
+
+    for line in lines:
+        stripped = line.strip().lower()
+        if (
+            not stripped.startswith("--")
+            and "attach '" in stripped
+            and "' as workspace_db;" in stripped
+        ):
+            updated_lines.append(target_line)
+            replaced = True
+        else:
+            updated_lines.append(line)
+
+    if not replaced:
+        return
+
+    scratchpad_path.write_text("\n".join(updated_lines) + "\n", encoding="utf-8")
+
+
 def _qident(name: str) -> str:
     return '"' + name.replace('"', '""') + '"'
 
 
-def _build_workspace_db(data_dir: Path, question_ids: list[str]) -> list[str]:
+def _build_workspace_db(data_dir: Path, question_ids: list[str]) -> tuple[list[str], Path]:
     import duckdb
 
     skipped: list[str] = []
     duckdb_dir = _duckdb_dir(data_dir)
     duckdb_dir.mkdir(parents=True, exist_ok=True)
     workspace_path = duckdb_dir / "workspace_build.duckdb"
+    fallback_workspace_path = duckdb_dir / "workspace_build_pending.duckdb"
 
     if workspace_path.exists():
-        workspace_path.unlink()
+        try:
+            workspace_path.unlink()
+        except OSError as exc:
+            if not _file_in_use_error(exc):
+                raise
+            workspace_path = fallback_workspace_path
+            if workspace_path.exists():
+                try:
+                    workspace_path.unlink()
+                except OSError:
+                    pass
+            print(
+                "Could not replace data/duckdb/workspace_build.duckdb because it is still open "
+                "(often from an active SQL tab). Building into "
+                "data/duckdb/workspace_build_pending.duckdb for this run.",
+                file=sys.stderr,
+            )
 
     conn = duckdb.connect(str(workspace_path))
     try:
@@ -158,7 +203,7 @@ def _build_workspace_db(data_dir: Path, question_ids: list[str]) -> list[str]:
     finally:
         conn.close()
 
-    return skipped
+    return skipped, workspace_path
 
 
 def _file_in_use_error(exc: OSError) -> bool:
@@ -172,9 +217,8 @@ def _file_in_use_error(exc: OSError) -> bool:
     return "being used by another process" in lowered or "text file busy" in lowered
 
 
-def _refresh_verification_db(data_dir: Path) -> None:
+def _refresh_verification_db(data_dir: Path, workspace_path: Path) -> None:
     duckdb_dir = _duckdb_dir(data_dir)
-    workspace_path = duckdb_dir / "workspace_build.duckdb"
     verification_path = duckdb_dir / "workspace_verify.duckdb"
     if not workspace_path.exists():
         return
@@ -263,9 +307,17 @@ def main() -> int:
             continue
 
     all_ids = sorted(by_id.keys())
-    workspace_skipped = _build_workspace_db(data_dir, all_ids)
-    _refresh_verification_db(data_dir)
+    workspace_skipped, workspace_path = _build_workspace_db(data_dir, all_ids)
+    _refresh_verification_db(data_dir, workspace_path)
     _sync_duckdb_workspace_settings(data_dir.parent, all_ids)
+    _sync_scratchpad_workspace_path(data_dir.parent, workspace_path)
+
+    workspace_hint_path = _duckdb_dir(data_dir) / "workspace_last_build.txt"
+    workspace_hint_path.write_text(
+        str(workspace_path.relative_to(data_dir.parent)),
+        encoding="utf-8",
+    )
+    print(f"Workspace build file for this run: {workspace_path.relative_to(data_dir.parent)}")
 
     if workspace_skipped:
         print(
@@ -281,6 +333,15 @@ def main() -> int:
             file=sys.stderr,
         )
         return 1
+
+    if workspace_path.name != "workspace_build.duckdb":
+        print(
+            "To query the newest build in your current SQL tab, run:\n"
+            "  use memory.main;\n"
+            "  detach database if exists workspace_db;\n"
+            f"  attach '{workspace_path.as_posix()}' as workspace_db;",
+            file=sys.stderr,
+        )
 
     print("Done.")
     return 0

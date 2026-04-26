@@ -7,3 +7,4 @@ __pycache__/
 *.pyc
 .env
 progress/
+data/duckdb/workspace_last_build.txt

@@ -1,0 +1,11 @@
+---
+description: Always run lock-safe bootstrap after question changes
+alwaysApply: true
+---
+
+# Lock-safe bootstrap workflow
+
+- After creating or changing question assets (`questions/`, `solutions/`, `data/generators/`), always run `python data/bootstrap.py` (or scoped `python data/bootstrap.py <schema_id>`).
+- If bootstrap prints that `workspace_build.duckdb` is locked and writes `workspace_build_pending.duckdb`, guide the user to run the detach/attach block in `scratchpad.sql` for the fallback file path shown in bootstrap output.
+- Never suggest restarting the full workspace as the first step.
+- After bootstrap, validate the updated solution SQL with `python data/verify_solution_sql.py`.

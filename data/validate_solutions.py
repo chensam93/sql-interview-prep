@@ -174,6 +174,11 @@ def main() -> int:
             "sql": REPO_ROOT / "solutions" / "lower" / "q002_resolution_rate_by_channel.sql",
         },
         {
+            "name": "lower/q003_priority_mix_by_channel",
+            "database": REPO_ROOT / "data" / "duckdb" / "q003_lower.duckdb",
+            "sql": REPO_ROOT / "solutions" / "lower" / "q003_priority_mix_by_channel.sql",
+        },
+        {
             "name": "core/q001_monthly_revenue_trends",
             "database": REPO_ROOT / "data" / "duckdb" / "q001_core.duckdb",
             "sql": REPO_ROOT / "solutions" / "core" / "q001_monthly_revenue_trends.sql",

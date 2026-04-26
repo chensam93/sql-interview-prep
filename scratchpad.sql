@@ -1,11 +1,9 @@
 -- Session bootstrap (run once in a fresh SQL tab/session).
--- We attach workspace_build because it is refreshed directly by bootstrap.
-attach if not exists 'data/duckdb/workspace_build.duckdb' as workspace_db;
-
--- If this tab already attached workspace_db to an older file, run this reset block:
--- use memory.main;
--- detach workspace_db;
--- attach 'data/duckdb/workspace_build.duckdb' as workspace_db;
+-- Always reset attachment so reruns do not depend on previous tab state.
+-- bootstrap.py may rewrite the ATTACH path to a fallback build file when locked.
+use memory.main;
+detach database if exists workspace_db;
+attach 'data/duckdb/workspace_build.duckdb' as workspace_db;
 
 -- Quick sanity checks
 -- You can only set one default schema per session (USE). To see every question
@@ -19,7 +17,7 @@ attach if not exists 'data/duckdb/workspace_build.duckdb' as workspace_db;
 --
 -- Switch question: edit the single USE line (or skip USE and qualify tables as
 -- workspace_db.<schema>.<table>).
-USE workspace_db.q001_lower;
+USE workspace_db.q003_lower;
 
 SELECT current_database(), current_schema();
 SHOW TABLES;

@@ -19,10 +19,46 @@ attach if not exists 'data/duckdb/workspace_build.duckdb' as workspace_db;
 --
 -- Switch question: edit the single USE line (or skip USE and qualify tables as
 -- workspace_db.<schema>.<table>).
-USE workspace_db.q001_lower;
+USE workspace_db.q003_lower;
 
 SELECT current_database(), current_schema();
 SHOW TABLES;
 
 -- Start your answer below
 -- SELECT ...
+
+select 
+    tickets.*,
+    ticket_updates.* 
+from tickets
+left join ticket_updates
+    on ticket_updates.ticket_id = tickets.ticket_id
+;
+
+with final as (
+    select
+        tickets.ticket_id,
+        tickets.opened_date,
+        tickets.source_channel,
+        max(
+            case
+                when ticket_updates.update_type = 'resolved'
+                    and ticket_updates.update_date between tickets.opened_date and tickets.opened_date + interval '7 days'
+                then 1
+                else 0
+            end
+        ) as resolved_tickets_7d
+    from tickets
+    left join ticket_updates
+        on ticket_updates.ticket_id = tickets.ticket_id
+    group by 1,2,3
+)
+
+select
+    source_channel,
+    count(distinct ticket_id) as opened_tickets,
+    sum(resolved_tickets_7d) as resolved_tickets_7d,
+    round(100.0 * sum(resolved_tickets_7d) / count(distinct ticket_id), 1) as resolution_rate_pct_7d
+from final
+group by 1
+;

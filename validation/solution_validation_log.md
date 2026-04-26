@@ -1,8 +1,8 @@
 # Solution Validation Log
 
-- Generated at: 2026-04-02T11:44:30.297359+00:00
+- Generated at: 2026-04-26T04:27:30.947928+00:00
 - Scope: execute each reference solution statement against its bucket-specific DuckDB file.
-- Assumption (lower): milestone events counted once per user using `max(case ...)` flags.
+- Assumption (lower): ticket resolution counted once per ticket using `max(case ...)` flags.
 - Assumption (core): rolling average uses available history for early months (fewer than 3 rows).
 - Assumption (core q002): prior-month channel revenue defaults to `0` when missing for MoM delta.
 - Assumption (higher): missing prior month mrr is treated as `0` via `lag(..., default 0)` logic.
@@ -12,28 +12,30 @@
 - Database: `data\duckdb\q001_lower.duckdb`
 - SQL file: `solutions\lower\q001_conversion_funnel_basics.sql`
 
-- Statement 1: `13` rows
+- Statement 1: `42` rows
 
 ```text
-signup_week, signed_up_users, profile_completed_users, purchased_users, profile_completion_rate_pct, purchase_rate_pct
-2024-01-01, 71, 52, 26, 73.2, 36.6
-2024-01-08, 62, 50, 18, 80.6, 29.0
-2024-01-15, 72, 48, 29, 66.7, 40.3
-2024-01-22, 79, 58, 23, 73.4, 29.1
-2024-01-29, 74, 53, 20, 71.6, 27.0
-... (8 more rows)
+opened_week, priority, opened_tickets, resolved_tickets_3d, unresolved_tickets_3d, resolution_rate_pct_3d, resolution_band
+2024-01-29, high, 11, 4, 7, 36.4, weak
+2024-01-29, low, 19, 4, 15, 21.1, weak
+2024-01-29, medium, 7, 3, 4, 42.9, ok
+2024-02-05, high, 7, 4, 3, 57.1, ok
+2024-02-05, low, 25, 9, 16, 36.0, weak
+... (37 more rows)
 ```
 
-- Statement 2: `13` rows
+## lower/q002_resolution_rate_by_channel
+
+- Database: `data\duckdb\q002_lower.duckdb`
+- SQL file: `solutions\lower\q002_resolution_rate_by_channel.sql`
+
+- Statement 1: `3` rows
 
 ```text
-signup_week, acquisition_channel, purchased_users
-2024-01-01, organic, 13
-2024-01-08, paid_search, 8
-2024-01-15, organic, 10
-2024-01-22, paid_search, 8
-2024-01-29, organic, 9
-... (8 more rows)
+source_channel, opened_tickets, resolved_tickets_7d, resolution_rate_pct_7d
+chat, 224, 116, 51.8
+email, 371, 150, 40.4
+phone, 125, 55, 44.0
 ```
 
 ## core/q001_monthly_revenue_trends
@@ -94,6 +96,23 @@ order_month, channel, gross_revenue, mom_revenue_delta
 ... (4 more rows)
 ```
 
+## core/q003_monthly_net_after_returns
+
+- Database: `data\duckdb\q003_core.duckdb`
+- SQL file: `solutions\core\q003_monthly_net_after_returns.sql`
+
+- Statement 1: `6` rows
+
+```text
+report_month, gross_revenue, refund_amount, net_revenue, refund_pct_of_gross
+2024-01-01, 19781.500, 432.500, 19349.000, 2.19
+2024-02-01, 19295.500, 1201.760, 18093.740, 6.23
+2024-03-01, 18591.500, 1852.880, 16738.620, 9.97
+2024-04-01, 19063.500, 2084.380, 16979.120, 10.93
+2024-05-01, 19598.500, 1674.760, 17923.740, 8.55
+... (1 more rows)
+```
+
 ## higher/q001_subscription_mrr_movements
 
 - Database: `data\duckdb\q001_higher.duckdb`
@@ -126,5 +145,5 @@ snapshot_month, account_id, net_mrr_change, change_rank
 ## Invariant Checks
 
 - Core: Distinct months in raw data: 6
-- Lower: Weeks with purchased_users > signed_up_users: 0
+- Lower: Weeks with resolved_tickets_3d > opened_tickets: 0
 - Higher: Months violating MRR bridge equation: 0

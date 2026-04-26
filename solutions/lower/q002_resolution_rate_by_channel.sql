@@ -1,4 +1,9 @@
 -- Q002 (Lower) Reference Solution: 7-Day Resolution Rate by Channel
+-- Expected result (exact, 3 rows):
+-- source_channel, opened_tickets, resolved_tickets_7d, resolution_rate_pct_7d
+-- chat, 224, 116, 51.8
+-- email, 371, 150, 40.4
+-- phone, 125, 55, 44.0
 
 with ticket_resolution_flags as (
     select

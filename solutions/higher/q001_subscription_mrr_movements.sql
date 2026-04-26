@@ -1,4 +1,21 @@
 -- Q001 (Higher) Reference Solution: Subscription MRR Movements
+-- Statement 1 expected result (exact, 6 rows):
+-- snapshot_month, starting_mrr, new_mrr, expansion_mrr, contraction_mrr, churn_mrr, ending_mrr
+-- 2024-01-01, 0.000, 25411.000, 0.000, 0.000, 0.000, 25411.000
+-- 2024-02-01, 25411.000, 938.000, 1870.000, 1660.000, 1884.000, 24675.000
+-- 2024-03-01, 24675.000, 1810.000, 1275.000, 1590.000, 2854.000, 23316.000
+-- 2024-04-01, 23316.000, 1824.000, 2190.000, 1030.000, 1568.000, 24732.000
+-- 2024-05-01, 24732.000, 1213.000, 1365.000, 1630.000, 2701.000, 22979.000
+-- 2024-06-01, 22979.000, 1167.000, 1380.000, 1410.000, 2574.000, 21542.000
+--
+-- Statement 2 expected result shape: 30 rows.
+-- Statement 2 expected output preview:
+-- snapshot_month, account_id, net_mrr_change, change_rank
+-- 2024-01-01, acct_0077, 339.000, 1
+-- 2024-01-01, acct_0094, 339.000, 2
+-- 2024-01-01, acct_0099, 339.000, 3
+-- 2024-01-01, acct_0127, 339.000, 4
+-- 2024-01-01, acct_0149, 339.000, 5
 
 with account_monthly_mrr as (
     select

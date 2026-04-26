@@ -1,4 +1,21 @@
 -- Q001 (Core) Reference Solution: Monthly Revenue Trends
+-- Statement 1 expected result (exact, 6 rows):
+-- order_month, monthly_revenue, three_month_rolling_avg_revenue
+-- 2024-01-01, 36337.000, 36337.0
+-- 2024-02-01, 24384.000, 30360.5
+-- 2024-03-01, 33623.000, 31448.0
+-- 2024-04-01, 21923.000, 26643.333333333332
+-- 2024-05-01, 31930.000, 29158.666666666668
+-- 2024-06-01, 31296.000, 28383.0
+--
+-- Statement 2 expected result (exact, 6 rows):
+-- order_month, product_id, product_revenue
+-- 2024-01-01, prod_e, 15496.000
+-- 2024-02-01, prod_e, 8021.000
+-- 2024-03-01, prod_e, 16538.000
+-- 2024-04-01, prod_e, 7361.000
+-- 2024-05-01, prod_e, 12393.000
+-- 2024-06-01, prod_e, 12520.000
 
 with monthly_revenue as (
     select

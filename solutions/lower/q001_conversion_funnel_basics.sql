@@ -1,4 +1,12 @@
 -- Q001 (Lower) Reference Solution: Weekly Ticket Resolution Basics
+-- Expected result shape: 42 rows.
+-- Expected output preview (ordered by opened_week, priority):
+-- opened_week, priority, opened_tickets, resolved_tickets_3d, unresolved_tickets_3d, resolution_rate_pct_3d, resolution_band
+-- 2024-01-29, high, 11, 4, 7, 36.4, weak
+-- 2024-01-29, low, 19, 4, 15, 21.1, weak
+-- 2024-01-29, medium, 7, 3, 4, 42.9, ok
+-- 2024-02-05, high, 7, 4, 3, 57.1, ok
+-- 2024-02-05, low, 25, 9, 16, 36.0, weak
 
 with ticket_resolution_flags as (
     select

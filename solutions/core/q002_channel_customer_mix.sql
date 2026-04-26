@@ -1,4 +1,21 @@
 -- Q002 (Core) Reference Solution: Channel Revenue Mix (New vs Returning)
+-- Statement 1 expected result shape: 36 rows.
+-- Statement 1 expected output preview:
+-- order_month, channel, gross_revenue, new_customer_revenue, returning_customer_revenue, returning_revenue_share_pct
+-- 2024-01-01, affiliate, 3201.000, 3201.000, 0.000, 0.0
+-- 2024-01-01, email, 10160.000, 10160.000, 0.000, 0.0
+-- 2024-01-01, organic, 17587.000, 17587.000, 0.000, 0.0
+-- 2024-01-01, paid_search, 12193.000, 12193.000, 0.000, 0.0
+-- 2024-02-01, affiliate, 6051.000, 4127.000, 1924.000, 31.8
+--
+-- Statement 2 expected result shape: 9 rows.
+-- Statement 2 expected output preview:
+-- order_month, channel, gross_revenue, mom_revenue_delta
+-- 2024-01-01, organic, 17587.000, 17587.000
+-- 2024-02-01, affiliate, 6051.000, 2850.000
+-- 2024-03-01, paid_search, 16753.000, 7030.000
+-- 2024-04-01, organic, 18148.000, 5384.000
+-- 2024-05-01, email, 13472.000, 5756.000
 
 with order_level_revenue as (
     select

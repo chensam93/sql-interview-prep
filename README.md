@@ -2,9 +2,16 @@
 
 Much of this repository was built with coding-agent assistance (for example Cursor). It is a personal practice scaffold, not production software—review SQL, Python, and data logic before relying on it.
 
-**What you get:** Interview-style prompts with **real rows in DuckDB**, so you run SQL and inspect results instead of guessing on paper or having to rely on a LLM's response. I've found extra value in being able to work with a query itself and actually execute it while still having the flexibility of a LLM to generate and curate questions.
+**What you get:** Interview-style prompts with **real rows in DuckDB**, so you run SQL and inspect results instead of guessing on paper.
 
-**How to use it:** Once things are setup the workflow should be simply using a scratchpad.sql (or somethign equivalent) to work on the available questions. The user should be able to easily refer to an AI of their choice to create/edit any question to their liking. Any part of the installation that is giving difficutly can likely be solved via an AI with awareness of this repository.
+**How to use it:** Read a prompt in `questions/` → install deps and run `bootstrap` once per refresh → open the workspace database in `scratchpad.sql`, attach the schema for that question (`use workspace_db.<schema_id>;`) → write and run your query. Peek at `solutions/` or the verify command below when you want a reference. If you use **Cursor or a similar agent**, you can iterate on prompts and regenerate data without leaving the repo.
+
+## Stack
+
+- **Runtime:** Python 3.9+
+- **Data:** DuckDB (local `.duckdb` workspaces under `data/duckdb/`, built by `data/bootstrap.py`)
+- **Authoring:** Markdown prompts, SQL solutions, Python data generators (`data/generators/`)
+- **Editor (optional):** VS Code or Cursor — `.vscode/` wires DuckDB Explorer and a bootstrap build task
 
 ## Quickstart
 
@@ -13,15 +20,17 @@ pip install -r requirements.txt
 python data/bootstrap.py
 ```
 
-In `scratchpad.sql`, attach the workspace file under `data/duckdb/` (often `workspace_build.duckdb`; if it is locked on Windows, use `workspace_build_pending.duckdb` instead), then for example:
+That installs DuckDB for Python, runs every question generator, and refreshes the merged workspace DB.
+
+In your SQL client, open `data/duckdb/workspace_build.duckdb` (or `workspace_build_pending.duckdb` if the main file is locked on Windows — common when it is already attached). In `scratchpad.sql` (or equivalent), attach a question schema, for example:
 
 ```sql
 use workspace_db.q003_core;
 ```
 
-**VS Code / Cursor:** DuckDB Explorer is pointed at `data/duckdb/workspace_verify.duckdb` in `.vscode/settings.json`. **Run Build Task** (`Ctrl+Shift+B`) runs bootstrap again.
+**VS Code / Cursor:** Explorer target and build task live in `.vscode/settings.json` and `.vscode/tasks.json` (`Ctrl+Shift+B` runs bootstrap).
 
-Optional—check a reference solution against the built data:
+Optional — validate a reference solution against the built data:
 
 ```bash
 python data/verify_solution_sql.py --sql solutions/core/q001_monthly_revenue_trends.sql --schema q001_core

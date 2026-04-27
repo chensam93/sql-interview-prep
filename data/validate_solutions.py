@@ -199,6 +199,16 @@ def main() -> int:
             "sql": REPO_ROOT / "solutions" / "lower" / "q007_trial_conversion_window_filter.sql",
         },
         {
+            "name": "lower/q008_failed_logins_before_first_success",
+            "database": REPO_ROOT / "data" / "duckdb" / "q008_lower.duckdb",
+            "sql": REPO_ROOT / "solutions" / "lower" / "q008_failed_logins_before_first_success.sql",
+        },
+        {
+            "name": "lower/q009_top_genres_with_watch_time_ties",
+            "database": REPO_ROOT / "data" / "duckdb" / "q009_lower.duckdb",
+            "sql": REPO_ROOT / "solutions" / "lower" / "q009_top_genres_with_watch_time_ties.sql",
+        },
+        {
             "name": "core/q001_monthly_revenue_trends",
             "database": REPO_ROOT / "data" / "duckdb" / "q001_core.duckdb",
             "sql": REPO_ROOT / "solutions" / "core" / "q001_monthly_revenue_trends.sql",
@@ -212,6 +222,21 @@ def main() -> int:
             "name": "core/q003_monthly_net_after_returns",
             "database": REPO_ROOT / "data" / "duckdb" / "q003_core.duckdb",
             "sql": REPO_ROOT / "solutions" / "core" / "q003_monthly_net_after_returns.sql",
+        },
+        {
+            "name": "core/q004_renewal_outcome_classification",
+            "database": REPO_ROOT / "data" / "duckdb" / "q004_core.duckdb",
+            "sql": REPO_ROOT / "solutions" / "core" / "q004_renewal_outcome_classification.sql",
+        },
+        {
+            "name": "core/q005_overlapping_subscription_periods_audit",
+            "database": REPO_ROOT / "data" / "duckdb" / "q005_core.duckdb",
+            "sql": REPO_ROOT / "solutions" / "core" / "q005_overlapping_subscription_periods_audit.sql",
+        },
+        {
+            "name": "core/q006_top_genre_lexicographic_tie_break",
+            "database": REPO_ROOT / "data" / "duckdb" / "q006_core.duckdb",
+            "sql": REPO_ROOT / "solutions" / "core" / "q006_top_genre_lexicographic_tie_break.sql",
         },
         {
             "name": "higher/q001_subscription_mrr_movements",

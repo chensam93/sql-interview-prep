@@ -1,6 +1,6 @@
 # Solution Validation Log
 
-- Generated at: 2026-04-26T04:27:30.947928+00:00
+- Generated at: 2026-04-27T22:21:51.152220+00:00
 - Scope: execute each reference solution statement against its bucket-specific DuckDB file.
 - Assumption (lower): ticket resolution counted once per ticket using `max(case ...)` flags.
 - Assumption (core): rolling average uses available history for early months (fewer than 3 rows).
@@ -36,6 +36,120 @@ source_channel, opened_tickets, resolved_tickets_7d, resolution_rate_pct_7d
 chat, 224, 116, 51.8
 email, 371, 150, 40.4
 phone, 125, 55, 44.0
+```
+
+## lower/q003_priority_mix_by_channel
+
+- Database: `data\duckdb\q003_lower.duckdb`
+- SQL file: `solutions\lower\q003_priority_mix_by_channel.sql`
+
+- Statement 1: `3` rows
+
+```text
+source_channel, total_tickets, high_priority_tickets, high_priority_pct, priority_risk_band
+chat, 194, 39, 20.1, medium_risk
+email, 342, 51, 14.9, low_risk
+phone, 124, 40, 32.3, high_risk
+```
+
+## lower/q004_carrier_on_time_delivery_basics
+
+- Database: `data\duckdb\q004_lower.duckdb`
+- SQL file: `solutions\lower\q004_carrier_on_time_delivery_basics.sql`
+
+- Statement 1: `263` rows
+
+```text
+shipment_id, carrier, promised_date, first_delivered_date, days_late
+shipment_00049, postal_economy, 2024-05-07, 2024-05-11, 4
+shipment_00055, postal_economy, 2024-08-05, 2024-08-09, 4
+shipment_00081, postal_economy, 2024-05-29, 2024-06-02, 4
+shipment_00114, postal_economy, 2024-07-25, 2024-07-29, 4
+shipment_00129, postal_economy, 2024-07-04, 2024-07-08, 4
+... (258 more rows)
+```
+
+## lower/q005_inventory_snapshot_quality_checks
+
+- Database: `data\duckdb\q005_lower.duckdb`
+- SQL file: `solutions\lower\q005_inventory_snapshot_quality_checks.sql`
+
+- Statement 1: `4` rows
+
+```text
+store_id, product_id, snapshot_date, duplicate_count
+store_002, prod_b, 2024-08-10, 3
+store_003, prod_d, 2024-08-12, 3
+store_001, prod_c, 2024-08-04, 2
+store_003, prod_a, 2024-08-08, 2
+```
+
+## lower/q006_refund_without_return
+
+- Database: `data\duckdb\q006_lower.duckdb`
+- SQL file: `solutions\lower\q006_refund_without_return.sql`
+
+- Statement 1: `16` rows
+
+```text
+order_id, customer_id, order_date
+order_00000, cust_001, 2024-09-01
+order_00012, cust_013, 2024-09-13
+order_00024, cust_025, 2024-09-04
+order_00036, cust_037, 2024-09-16
+order_00048, cust_004, 2024-09-07
+... (11 more rows)
+```
+
+## lower/q007_trial_conversion_window_filter
+
+- Database: `data\duckdb\q007_lower.duckdb`
+- SQL file: `solutions\lower\q007_trial_conversion_window_filter.sql`
+
+- Statement 1: `91` rows
+
+```text
+user_id, signup_date, subscription_start_date, days_to_convert
+user_0000, 2024-10-01, 2024-10-01, 0
+user_0001, 2024-10-02, 2024-10-09, 7
+user_0003, 2024-10-04, 2024-10-07, 3
+user_0005, 2024-10-06, 2024-10-06, 0
+user_0006, 2024-10-07, 2024-10-14, 7
+... (86 more rows)
+```
+
+## lower/q008_failed_logins_before_first_success
+
+- Database: `data\duckdb\q008_lower.duckdb`
+- SQL file: `solutions\lower\q008_failed_logins_before_first_success.sql`
+
+- Statement 1: `37` rows
+
+```text
+user_id, first_success_time, failed_attempts_before_success
+user_0000, 2024-11-01 08:03:00, 3
+user_0004, 2024-11-01 08:48:00, 4
+user_0005, 2024-11-01 08:58:00, 3
+user_0009, 2024-11-01 09:43:00, 4
+user_0010, 2024-11-01 09:53:00, 3
+... (32 more rows)
+```
+
+## lower/q009_top_genres_with_watch_time_ties
+
+- Database: `data\duckdb\q009_lower.duckdb`
+- SQL file: `solutions\lower\q009_top_genres_with_watch_time_ties.sql`
+
+- Statement 1: `45` rows
+
+```text
+user_id, genre, total_watch_minutes
+user_0000, action, 10
+user_0001, comedy, 14
+user_0002, drama, 18
+user_0003, documentary, 22
+user_0004, action, 26
+... (40 more rows)
 ```
 
 ## core/q001_monthly_revenue_trends
@@ -105,12 +219,61 @@ order_month, channel, gross_revenue, mom_revenue_delta
 
 ```text
 report_month, gross_revenue, refund_amount, net_revenue, refund_pct_of_gross
-2024-01-01, 19781.500, 432.500, 19349.000, 2.19
-2024-02-01, 19295.500, 1201.760, 18093.740, 6.23
-2024-03-01, 18591.500, 1852.880, 16738.620, 9.97
-2024-04-01, 19063.500, 2084.380, 16979.120, 10.93
-2024-05-01, 19598.500, 1674.760, 17923.740, 8.55
+2024-01-01, 19781.500, 521.000, 19260.500, 2.63
+2024-02-01, 19295.500, 852.870, 18442.630, 4.42
+2024-03-01, 18591.500, 1919.740, 16671.760, 10.33
+2024-04-01, 19063.500, 2814.750, 16248.750, 14.77
+2024-05-01, 19598.500, 952.990, 18645.510, 4.86
 ... (1 more rows)
+```
+
+## core/q004_renewal_outcome_classification
+
+- Database: `data\duckdb\q004_core.duckdb`
+- SQL file: `solutions\core\q004_renewal_outcome_classification.sql`
+
+- Statement 1: `54` rows
+
+```text
+subscription_id, account_id, renewal_date, first_paid_invoice_date, renewal_outcome
+sub_00013, acct_0013, 2024-11-02, 2024-11-12, renewed_late
+sub_00014, acct_0014, 2024-11-03, None, not_renewed
+sub_00015, acct_0015, 2024-11-04, 2024-11-04, renewed_on_time
+sub_00016, acct_0016, 2024-11-05, 2024-11-07, renewed_on_time
+sub_00017, acct_0017, 2024-11-06, 2024-11-16, renewed_late
+... (49 more rows)
+```
+
+## core/q005_overlapping_subscription_periods_audit
+
+- Database: `data\duckdb\q005_core.duckdb`
+- SQL file: `solutions\core\q005_overlapping_subscription_periods_audit.sql`
+
+- Statement 1: `4` rows
+
+```text
+account_id, subscription_id_a, subscription_id_b, overlap_start_date, overlap_end_date
+acct_0007, sub_0007_ov1, sub_0007_ov2, 2024-03-20, 2024-04-15
+acct_0021, sub_0021_ov1, sub_0021_ov2, 2024-02-15, 2024-02-28
+acct_0044, sub_0044_ov1, sub_0044_ov2, 2024-05-15, 2024-07-20
+acct_0069, sub_0069_ov1, sub_0069_ov2, 2024-06-30, 2024-06-30
+```
+
+## core/q006_top_genre_lexicographic_tie_break
+
+- Database: `data\duckdb\q006_core.duckdb`
+- SQL file: `solutions\core\q006_top_genre_lexicographic_tie_break.sql`
+
+- Statement 1: `36` rows
+
+```text
+user_id, primary_genre, primary_genre_watch_minutes
+acct_0000, action, 200
+acct_0001, comedy, 201
+acct_0002, drama, 202
+acct_0003, documentary, 203
+acct_0004, action, 204
+... (31 more rows)
 ```
 
 ## higher/q001_subscription_mrr_movements

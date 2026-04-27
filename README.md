@@ -129,9 +129,14 @@ python data/verify_solution_sql.py --sql solutions/higher/q001_subscription_mrr_
 | [Q005](questions/lower/q005_inventory_snapshot_quality_checks.md) | lower | Duplicate Snapshot Keys | grouped duplicate detection, having filters, ordering |
 | [Q006](questions/lower/q006_refund_without_return.md) | lower | Refund Without Return | existence checks, anti-join pattern, filtering |
 | [Q007](questions/lower/q007_trial_conversion_window_filter.md) | lower | Trial Conversion Window Filter | date-window filtering, join logic, boundary checks |
+| [Q008](questions/lower/q008_failed_logins_before_first_success.md) | lower | Failed Logins Before First Success | first-success logic, conditional counting, joins |
+| [Q009](questions/lower/q009_top_genres_with_watch_time_ties.md) | lower | Top Genres With Watch-Time Ties | date-window filtering, grouped sums, tie handling without arbitrary winners |
 | [Q001](questions/core/q001_monthly_revenue_trends.md) | core (mid + senior blend) | Monthly Revenue Trends | aggregation, rolling average, ranking |
 | [Q002](questions/core/q002_channel_customer_mix.md) | core (mid + senior blend) | Channel Revenue Mix (New vs Returning) | ctes, window functions, conditional aggregation, ranking |
 | [Q003](questions/core/q003_monthly_net_after_returns.md) | core (mid + senior blend) | Monthly gross vs refunds | ctes, joins, aggregation, coalesce, null-safe ratios |
+| [Q004](questions/core/q004_renewal_outcome_classification.md) | core (mid + senior blend) | Renewal Outcome Classification | first-paid event logic, conditional outcome classification, date windows |
+| [Q005](questions/core/q005_overlapping_subscription_periods_audit.md) | core (mid + senior blend) | Overlapping Subscription Periods Audit | self-join interval overlap checks, pair deduping, integrity audit logic |
+| [Q006](questions/core/q006_top_genre_lexicographic_tie_break.md) | core (mid + senior blend) | Top Genre With Lexicographic Tie-Break | date-window filtering, grouped sums, windowed ranking with deterministic tie-break rules |
 | [Q001](questions/higher/q001_subscription_mrr_movements.md) | higher | Subscription MRR Movements | ctes, window functions, lifecycle classification |
 
 

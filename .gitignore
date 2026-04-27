@@ -8,3 +8,6 @@ __pycache__/
 .env
 progress/
 data/duckdb/workspace_last_build.txt
+
+# Personal interview notes for question curation (see docs/interview_snippets.md)
+docs/interview_snippets.local.md

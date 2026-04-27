@@ -1,0 +1,40 @@
+---
+description: How to translate real interview snippets into repo-native SQL questions
+alwaysApply: true
+---
+
+# Interview realism intake (for future question authoring)
+
+When the user shares anonymized interview fragments, treat them as **design constraints**, not as something to paste verbatim.
+
+## What to capture (minimum useful bundle)
+
+- **Business object**: what entity is the grain (user, subscription, shipment, ticket)?
+- **Time rules**: windows, inclusive/exclusive boundaries, timezone assumptions (if any).
+- **Ambiguity that mattered in the interview**: ties, duplicates, late-arriving events, cancellations, retries.
+- **Output contract**: one row vs many rows per key; whether ties must be preserved or broken (and how).
+- **Anti-patterns they saw**: double counting, join fanout, null handling, off-by-one windows.
+
+## Personal steering file (optional, gitignored)
+
+- **Template (committed):** `docs/interview_snippets.example.md`
+- **Your notes (gitignored):** `docs/interview_snippets.local.md`
+
+If `docs/interview_snippets.local.md` exists, **read it early** when:
+
+- adding or editing `questions/`, `solutions/`, or `data/generators/`
+- the user mentions interviews, “like last time”, or wants style grounded in their examples
+
+Per entry, prefer:
+
+- 3–8 bullets per snippet
+- no employer-identifying details
+- link each snippet to candidate SQL shapes (join + aggregate, window ranking, existence checks, overlap audit)
+
+Do **not** ask to commit `interview_snippets.local.md`; it is intentionally local.
+
+Treat the file as an **append-only log** of anonymized patterns: prefer adding a new dated entry over rewriting history, unless the user is consolidating duplicates.
+
+## Translation rule (SQL prep repo)
+
+Only turn a snippet into a new question if it can be modeled as **clear relational tables** with a crisp correctness definition. If the real task was mostly parsing/pseudocode, capture it as notes for variety, but do not force a tortured SQL prompt.

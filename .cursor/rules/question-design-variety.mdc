@@ -1,0 +1,25 @@
+---
+description: Vary SQL question formats and domains
+alwaysApply: true
+---
+
+# Lower-question design principle
+
+- Do not default to "one row per group with several aggregates" for every new question.
+- Aggregation questions are still encouraged, but they should be part of the mix rather than the dominant default format.
+- Rotate prompt formats across questions, for example:
+  - row-level filtering/classification tasks
+  - event timeline / first-occurrence logic
+  - debugging/fix-the-query tasks
+  - data quality checks and exception finding
+  - joins with inclusion/exclusion logic
+  - light window-function tasks when level-appropriate
+- Rotate business domains/data marts (support, logistics, finance, subscriptions, growth, operations) so consecutive questions are not near-duplicates in shape.
+- Keep lower-difficulty scope small and routine, but vary the answer shape (not always grouped summaries).
+- When adding a new question, briefly sanity-check against recent interview-style patterns for inspiration and avoid cloning the previous question structure.
+
+# Grading principle (all levels)
+
+- Across lower/core/higher questions, prioritize logical correctness over presentation details by default.
+- Treat ordering, alias names, and output formatting as non-blocking unless the prompt explicitly says they are required for correctness.
+- Do not reject an otherwise-correct solution only because sort order or cosmetic naming differs from the reference.

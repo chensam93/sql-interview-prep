@@ -1,10 +1,11 @@
 -- DuckDB scratchpad
 -- Keep memory.main active so workspace_db can always be detached/reattached if needed.
 use memory.main;
-attach if not exists 'data/duckdb/workspace_verify.duckdb' as workspace_db;
+detach database if exists workspace_db;
+attach 'data/duckdb/workspace_build_pending.duckdb' as workspace_db;
 
 -- Switch question by editing the schema in the line below.
-use workspace_db.q003_lower;
+use workspace_db.q007_lower;
 
 select current_database(), current_schema();
 
@@ -15,3 +16,4 @@ order by table_name;
 
 -- Start your answer below
 -- SELECT ...
+

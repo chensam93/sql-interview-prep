@@ -9,9 +9,9 @@
         {
             "alias": "workspace",
             "type": "file",
-            "path": "data/duckdb/workspace_verify.duckdb",
+            "path": "data/duckdb/workspace_build.duckdb",
             "readOnly": true,
-            "attached": true
+            "attached": false
         }
     ],
     "duckdb.defaultDatabase": "workspace"

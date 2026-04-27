@@ -179,6 +179,26 @@ def main() -> int:
             "sql": REPO_ROOT / "solutions" / "lower" / "q003_priority_mix_by_channel.sql",
         },
         {
+            "name": "lower/q004_carrier_on_time_delivery_basics",
+            "database": REPO_ROOT / "data" / "duckdb" / "q004_lower.duckdb",
+            "sql": REPO_ROOT / "solutions" / "lower" / "q004_carrier_on_time_delivery_basics.sql",
+        },
+        {
+            "name": "lower/q005_inventory_snapshot_quality_checks",
+            "database": REPO_ROOT / "data" / "duckdb" / "q005_lower.duckdb",
+            "sql": REPO_ROOT / "solutions" / "lower" / "q005_inventory_snapshot_quality_checks.sql",
+        },
+        {
+            "name": "lower/q006_refund_without_return",
+            "database": REPO_ROOT / "data" / "duckdb" / "q006_lower.duckdb",
+            "sql": REPO_ROOT / "solutions" / "lower" / "q006_refund_without_return.sql",
+        },
+        {
+            "name": "lower/q007_trial_conversion_window_filter",
+            "database": REPO_ROOT / "data" / "duckdb" / "q007_lower.duckdb",
+            "sql": REPO_ROOT / "solutions" / "lower" / "q007_trial_conversion_window_filter.sql",
+        },
+        {
             "name": "core/q001_monthly_revenue_trends",
             "database": REPO_ROOT / "data" / "duckdb" / "q001_core.duckdb",
             "sql": REPO_ROOT / "solutions" / "core" / "q001_monthly_revenue_trends.sql",

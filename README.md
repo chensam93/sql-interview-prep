@@ -125,6 +125,10 @@ python data/verify_solution_sql.py --sql solutions/higher/q001_subscription_mrr_
 | [Q001](questions/lower/q001_conversion_funnel_basics.md) | lower | Weekly Ticket Resolution Basics | left join filtering, count distinct, date bucketing, case statements |
 | [Q002](questions/lower/q002_resolution_rate_by_channel.md) | lower | 7-Day Resolution Rate by Channel | left join, case statements, grouped aggregation |
 | [Q003](questions/lower/q003_priority_mix_by_channel.md) | lower | Priority Mix by Channel | conditional aggregation, grouped counts, case statements |
+| [Q004](questions/lower/q004_carrier_on_time_delivery_basics.md) | lower | Late Delivery List | left join, first-event logic, date-diff filtering |
+| [Q005](questions/lower/q005_inventory_snapshot_quality_checks.md) | lower | Duplicate Snapshot Keys | grouped duplicate detection, having filters, ordering |
+| [Q006](questions/lower/q006_refund_without_return.md) | lower | Refund Without Return | existence checks, anti-join pattern, filtering |
+| [Q007](questions/lower/q007_trial_conversion_window_filter.md) | lower | Trial Conversion Window Filter | date-window filtering, join logic, boundary checks |
 | [Q001](questions/core/q001_monthly_revenue_trends.md) | core (mid + senior blend) | Monthly Revenue Trends | aggregation, rolling average, ranking |
 | [Q002](questions/core/q002_channel_customer_mix.md) | core (mid + senior blend) | Channel Revenue Mix (New vs Returning) | ctes, window functions, conditional aggregation, ranking |
 | [Q003](questions/core/q003_monthly_net_after_returns.md) | core (mid + senior blend) | Monthly gross vs refunds | ctes, joins, aggregation, coalesce, null-safe ratios |

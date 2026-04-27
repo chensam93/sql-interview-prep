@@ -72,9 +72,9 @@ def _sync_duckdb_workspace_settings(root_dir: Path, question_ids: list[str]) -> 
         {
             "alias": "workspace",
             "type": "file",
-            "path": "data/duckdb/workspace_verify.duckdb",
+            "path": "data/duckdb/workspace_build.duckdb",
             "readOnly": True,
-            "attached": True,
+            "attached": False,
         }
     ]
     existing["duckdb.databases"] = databases
@@ -91,7 +91,11 @@ def _sync_scratchpad_workspace_path(root_dir: Path, workspace_path: Path) -> Non
         return
 
     lines = scratchpad_path.read_text(encoding="utf-8").splitlines()
-    target_line = f"attach '{workspace_path.as_posix()}' as workspace_db;"
+    try:
+        workspace_display_path = workspace_path.relative_to(root_dir).as_posix()
+    except ValueError:
+        workspace_display_path = workspace_path.as_posix()
+    target_line = f"attach '{workspace_display_path}' as workspace_db;"
     updated_lines: list[str] = []
     replaced = False
 
@@ -336,10 +340,8 @@ def main() -> int:
 
     if workspace_path.name != "workspace_build.duckdb":
         print(
-            "To query the newest build in your current SQL tab, run:\n"
-            "  use memory.main;\n"
-            "  detach database if exists workspace_db;\n"
-            f"  attach '{workspace_path.as_posix()}' as workspace_db;",
+            "scratchpad.sql was auto-updated to the newest workspace file for this run. "
+            "Re-run scratchpad to pick up the new attachment.",
             file=sys.stderr,
         )
 

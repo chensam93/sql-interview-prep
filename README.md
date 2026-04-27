@@ -4,7 +4,7 @@ Much of this repository was built with coding-agent assistance (for example Curs
 
 **What you get:** Interview-style prompts with **real rows in DuckDB**, so you run SQL and inspect results instead of guessing on paper or having to rely on a LLM's response. I've found extra value in being able to work with a query itself and actually execute it while still having the flexibility of a LLM to generate and curate questions.
 
-**How to use it:** Read a prompt in `questions/` → install deps and run `bootstrap` once per refresh → open the workspace database in `scratchpad.sql`, attach the schema for that question (`use workspace_db.<schema_id>;`) → write and run your query. Peek at `solutions/` or the verify command below when you want a reference. If you use **Cursor or a similar agent**, you can iterate on prompts and regenerate data without leaving the repo.
+**How to use it:** Once things are setup the workflow should be simply using a scratchpad.sql (or somethign equivalent) to work on the available questions. The user should be able to easily refer to an AI of their choice to create/edit any question to their liking. Any part of the installation that is giving difficutly can likely be solved via an AI with awareness of this repository.
 
 ## Quickstart
 

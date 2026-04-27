@@ -2,7 +2,7 @@
 
 Much of this repository was built with coding-agent assistance (for example Cursor). It is a personal practice scaffold, not production software—review SQL, Python, and data logic before relying on it.
 
-**What you get:** Interview-style prompts with **real rows in DuckDB**, so you run SQL and inspect results instead of guessing on paper.
+**What you get:** Interview-style prompts with **real rows in DuckDB**, so you run SQL and inspect results instead of guessing on paper or having to rely on a LLM's response. I've found extra value in being able to work with a query itself and actually execute it, but still having the flexibility of a LLM to generate and curate questions.
 
 **How to use it:** Read a prompt in `questions/` → install deps and run `bootstrap` once per refresh → open the workspace database in `scratchpad.sql`, attach the schema for that question (`use workspace_db.<schema_id>;`) → write and run your query. Peek at `solutions/` or the verify command below when you want a reference. If you use **Cursor or a similar agent**, you can iterate on prompts and regenerate data without leaving the repo.
 

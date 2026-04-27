@@ -2,7 +2,7 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "SQL Prep: Build all DuckDB data",
+      "label": "SQL Prep: Bootstrap data",
       "type": "shell",
       "command": "${workspaceFolder}/.venv/bin/python data/bootstrap.py",
       "windows": {

@@ -72,7 +72,7 @@ def _sync_duckdb_workspace_settings(root_dir: Path, question_ids: list[str]) -> 
         {
             "alias": "workspace",
             "type": "file",
-            "path": "${workspaceFolder}/data/duckdb/workspace_verify.duckdb",
+            "path": "data/duckdb/workspace_verify.duckdb",
             "readOnly": True,
             "attached": True,
         }

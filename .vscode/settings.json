@@ -9,7 +9,7 @@
         {
             "alias": "workspace",
             "type": "file",
-            "path": "${workspaceFolder}/data/duckdb/workspace_verify.duckdb",
+            "path": "data/duckdb/workspace_verify.duckdb",
             "readOnly": true,
             "attached": true
         }

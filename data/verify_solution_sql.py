@@ -1,5 +1,5 @@
 """
-Validate a solution SQL file against a local DuckDB.
+Validate a solution SQL file against local DuckDB.
 
 Default database is data/duckdb/workspace_verify.duckdb (bootstrap snapshot).
 Falls back to legacy paths if present.
@@ -57,7 +57,6 @@ def main() -> int:
             return 1
 
     sql_text = sql_path.read_text(encoding="utf-8")
-
     try:
         connection = duckdb.connect(str(database_path), read_only=True)
     except Exception as exc:

@@ -20,13 +20,13 @@ This is very much **vibe-coded**—treat it as a practice scaffold/draft, not a 
 
 1. Pick a question from `questions/`
 2. Run `python data/bootstrap.py` (writes per-question DBs under `data/duckdb/` and refreshes `data/duckdb/workspace_verify.duckdb`)
-3. Query via **`data/duckdb/workspace_build.duckdb`** in `scratchpad.sql`: each question is a schema (`q001_lower`, `q001_core`, `q001_higher`, …). Attach once, then switch with `USE workspace_db.<schema_id>;` For private notes, use **`personal_scratch.sql`** (gitignored).
+3. Open `scratchpad.sql`, switch to your target schema (for example `use workspace_db.q003_lower;`), and run statements in DuckDB
 4. Review `solutions/` when ready
 
 ## Config notes (requirements + editor)
-- Requirements: `python 3.9+`, and `pip install -r requirements.txt` (only `duckdb`).
-- Editor integration: `.vscode/settings.json` points DuckDB Explorer at `data/duckdb/workspace_verify.duckdb` and opens it read-only.
-- Build task: `.vscode/tasks.json` defines `SQL Prep: Build all DuckDB data` (runs `python data/bootstrap.py`).
+- Requirements: `python 3.9+` and `pip install -r requirements.txt`.
+- Editor integration: `.vscode/settings.json` points DuckDB Explorer at `data/duckdb/workspace_verify.duckdb` for data inspection.
+- Build tasks: `.vscode/tasks.json` defines `SQL Prep: Bootstrap data`.
 - Windows: DuckDB files can be locked; if you have a `data/duckdb/qNNN.duckdb` open in Cursor, bootstrap may skip that question until you detach it (rerun bootstrap after closing).
 
 ## Setup
@@ -36,6 +36,24 @@ Python 3.9+:
 ```bash
 pip install -r requirements.txt
 ```
+
+## New User Quickstart
+
+For a fresh clone, do this once:
+
+1. Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+2. Run bootstrap:
+
+```bash
+python data/bootstrap.py
+```
+
+3. Open `scratchpad.sql`, switch to desired schema (`use workspace_db.q001_lower;`, `use workspace_db.q003_core;`, etc.), and run.
 
 ## Secret scanning
 
@@ -53,7 +71,7 @@ Optional (better local detection): install `gitleaks` so the hook runs `gitleaks
 
 ## Data
 
-`*.duckdb` files are gitignored. One command runs every `data/generators/generate_q*.py` and merges question DBs into a single practice snapshot:
+`*.duckdb` files are gitignored. One command runs every `data/generators/generate_q*.py` and refreshes DuckDB workspace files:
 
 ```bash
 python data/bootstrap.py
@@ -64,28 +82,14 @@ python data/bootstrap.py
 | File | Role |
 |------|------|
 | `data/duckdb/q001_core.duckdb`, `q001_lower.duckdb`, … | **Source** DB for each question (what generators build). Tables live in schema `main`. |
-| `data/duckdb/workspace_build.duckdb` | **What scratchpad queries in practice** — merged schemas (`q001_core`, `q001_lower`, …) refreshed directly by bootstrap. |
+| `data/duckdb/workspace_build.duckdb` | Merged workspace used for scratchpad querying. |
 | `data/duckdb/workspace_verify.duckdb` | Read-only snapshot copy for editor integrations that expect a stable file path. |
 
-`scratchpad.sql` now runs this reset automatically at the top of each run:
-
-```sql
-use memory.main;
-detach database if exists workspace_db;
-attach 'data/duckdb/workspace_build.duckdb' as workspace_db;
-```
-
-When `workspace_build.duckdb` is locked (common on Windows with an attached SQL tab), bootstrap now builds to a fallback file and writes the active path to:
-
-`data/duckdb/workspace_last_build.txt`
-
-Bootstrap also auto-updates `scratchpad.sql` to attach whichever workspace file was built in that run (primary or fallback), so you can rerun scratchpad without manual copy/paste.
-
-If a per-question file is open in Cursor, bootstrap may skip merging that question until you detach it. Bootstrap still looks for **legacy** `data/qNNN.duckdb` if the new path is missing (one-time migration).
+When `workspace_build.duckdb` is locked (common on Windows with an attached SQL tab), bootstrap writes `workspace_build_pending.duckdb`.
 
 **Adding a question:** add files under bucketed folders in `questions/` and `solutions/`, plus `data/generators/generate_q...py` that writes `data/duckdb/<schema_id>.duckdb`. Re-run bootstrap.
 
-**Build task:** **Terminal → Run Build Task** (`Ctrl+Shift+B`) runs `python data/bootstrap.py`.
+**Build task:** **Terminal → Run Build Task** (`Ctrl+Shift+B`) runs `SQL Prep: Bootstrap data`.
 
 ### Validate solutions
 
@@ -109,7 +113,7 @@ python data/verify_solution_sql.py --sql solutions/higher/q001_subscription_mrr_
 
 | Path | Role |
 |------|------|
-| `scratchpad.sql` | Session template (attach + question switch + sanity checks) |
+| `scratchpad.sql` | DuckDB scratchpad template |
 | `data/generators/` | Dataset scripts |
 | `data/duckdb/` | All `.duckdb` artifacts (per-question + workspace snapshots) |
 | `data/verify_solution_sql.py` | Non-interactive SQL check |

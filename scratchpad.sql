@@ -1,26 +1,17 @@
--- Session bootstrap (run once in a fresh SQL tab/session).
--- Always reset attachment so reruns do not depend on previous tab state.
--- bootstrap.py may rewrite the ATTACH path to a fallback build file when locked.
+-- DuckDB scratchpad
+-- Keep memory.main active so workspace_db can always be detached/reattached if needed.
 use memory.main;
-detach database if exists workspace_db;
-attach 'data/duckdb/workspace_build.duckdb' as workspace_db;
+attach if not exists 'data/duckdb/workspace_verify.duckdb' as workspace_db;
 
--- Quick sanity checks
--- You can only set one default schema per session (USE). To see every question
--- schema after ATTACH, run the block below, then set USE to one of those names.
---
--- SELECT schema_name
--- FROM information_schema.schemata
--- WHERE catalog_name = 'workspace_db'
---   AND schema_name NOT IN ('information_schema', 'pg_catalog', 'main')
--- ORDER BY schema_name;
---
--- Switch question: edit the single USE line (or skip USE and qualify tables as
--- workspace_db.<schema>.<table>).
-USE workspace_db.q003_lower;
+-- Switch question by editing the schema in the line below.
+use workspace_db.q003_lower;
 
-SELECT current_database(), current_schema();
-SHOW TABLES;
+select current_database(), current_schema();
+
+select table_name
+from information_schema.tables
+where table_schema = current_schema()
+order by table_name;
 
 -- Start your answer below
 -- SELECT ...
